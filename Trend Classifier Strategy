@@ -1,0 +1,366 @@
+//@version=4
+strategy(title="Trend change strat", shorttitle="trend change strat", overlay=false, default_qty_type=strategy.percent_of_equity, default_qty_value=100, commission_value=0.15)
+
+FromMonth = input(defval = 1, title = "From Month", minval = 1, maxval = 12)
+FromDay   = input(defval = 1, title = "From Day", minval = 1, maxval = 31)
+FromYear  = input(defval = 2019, title = "From Year", minval = 2015)
+ToMonth   = input(defval = 1, title = "To Month", minval = 1, maxval = 12)
+ToDay     = input(defval = 1, title = "To Day", minval = 1, maxval = 31)
+ToYear    = input(defval = 9999, title = "To Year", minval = 2017)
+
+start     = timestamp(FromYear, FromMonth, FromDay, 00, 00)
+finish    = timestamp(ToYear, ToMonth, ToDay, 23, 59)
+testPeriod()  => time >= start and time <= finish ? true : false
+
+//@version=4
+
+//Resolution settings
+res1 = input('720',title="Timeframe 1" )
+res2 = input('D',title="Timeframe 2" )
+res3 = input('3D',title="Timeframe 3" )
+res4 = input('W',title="Timeframe 4" )
+
+
+//Swing High
+n=1
+up = high[n+1]<high[n] and high[n]>high
+uphigh = valuewhen(up, high[1], 0)
+up65 = valuewhen(up, (high[1]-(high[1]-low[1])*0.375), 0)
+upmid = valuewhen(up, hl2[1], 0)
+up35 = valuewhen(up, (low[1]+(high[1]-low[1])*0.375), 0)
+
+//Swing Low
+down = low[n+1]>low[n] and low[n]<low
+downlow = valuewhen(down, low[1], 0)
+down65 = valuewhen(down, (high[1]-(high[1]-low[1])*0.375), 0)
+downmid = valuewhen(down, hl2[1], 0)
+down35 = valuewhen(down, (low[1]+(high[1]-low[1])*0.375), 0)
+
+//Main resolution data
+Dup = security(syminfo.tickerid, res1, up)
+Duphigh = security(syminfo.tickerid, res1, uphigh)
+Dup65 = security(syminfo.tickerid, res1, up65)
+Dupmid = security(syminfo.tickerid, res1, upmid)
+Dup35 = security(syminfo.tickerid, res1, up35)
+
+Ddown = security(syminfo.tickerid, res1, down)
+Ddownlow = security(syminfo.tickerid, res1, downlow)
+Ddown65 = security(syminfo.tickerid, res1, down65)
+Ddownmid = security(syminfo.tickerid, res1, downmid)
+Ddown35 = security(syminfo.tickerid, res1, down35)
+
+//res2 MTF data
+res2up = security(syminfo.tickerid, res2, up)
+res2uphigh = security(syminfo.tickerid, res2, uphigh)
+res2up65 = security(syminfo.tickerid, res2, up65)
+res2upmid = security(syminfo.tickerid, res2, upmid)
+res2up35 = security(syminfo.tickerid, res2, up35)
+
+res2down = security(syminfo.tickerid, res2, down)
+res2downlow = security(syminfo.tickerid, res2, downlow)
+res2down65 = security(syminfo.tickerid, res2, down65)
+res2downmid = security(syminfo.tickerid, res2, downmid)
+res2down35 = security(syminfo.tickerid, res2, down35)
+
+//res3 MTF data
+res3up = security(syminfo.tickerid, res3, up)
+res3uphigh = security(syminfo.tickerid, res3, uphigh)
+res3up65 = security(syminfo.tickerid, res3, up65)
+res3upmid = security(syminfo.tickerid, res3, upmid)
+res3up35 = security(syminfo.tickerid, res3, up35)
+
+res3down = security(syminfo.tickerid, res3, down)
+res3downlow = security(syminfo.tickerid, res3, downlow)
+res3down65 = security(syminfo.tickerid, res3, down65)
+res3downmid = security(syminfo.tickerid, res3, downmid)
+res3down35 = security(syminfo.tickerid, res3, down35)
+//res4 MTF data
+res4up = security(syminfo.tickerid, res4, up)
+res4uphigh = security(syminfo.tickerid, res4, uphigh)
+res4up65 = security(syminfo.tickerid, res4, up65)
+res4upmid = security(syminfo.tickerid, res4, upmid)
+res4up35 = security(syminfo.tickerid, res4, up35)
+
+res4down = security(syminfo.tickerid, res4, down)
+res4downlow = security(syminfo.tickerid, res4, downlow)
+res4down65 = security(syminfo.tickerid, res4, down65)
+res4downmid = security(syminfo.tickerid, res4, downmid)
+res4down35 = security(syminfo.tickerid, res4, down35)
+
+
+//SMA functions
+Sma(src,p) => a = cum(src), (a - a[max(p,0)])/max(p,0)
+upSmahigh = Sma(high, (barssince(up)+(n+1)))
+upSmamid = Sma(upmid, (barssince(up)+(n+1)))
+upSmalow = Sma(low, (barssince(up)+(n+1)))
+downSmahigh = Sma(high, (barssince(down)+(n+1)))
+downSmamid = Sma(downmid, (barssince(down)+(n+1)))
+downSmalow = Sma(low, (barssince(down)+(n+1)))
+
+MTFupSmahigh= security(syminfo.tickerid, res1, upSmahigh)
+MTFupSmamid= security(syminfo.tickerid, res1, upSmamid)
+MTFupSmalow= security(syminfo.tickerid, res1, upSmalow)
+MTFdownSmahigh= security(syminfo.tickerid, res1, downSmahigh)
+MTFdownSmamid= security(syminfo.tickerid, res1, downSmamid)
+MTFdownSmalow= security(syminfo.tickerid, res1, downSmalow)
+
+res2upSmahigh= security(syminfo.tickerid, res2, upSmahigh)
+res2upSmamid= security(syminfo.tickerid, res2, upSmamid)
+res2upSmalow= security(syminfo.tickerid, res2, upSmalow)
+res2downSmahigh= security(syminfo.tickerid, res2, downSmahigh)
+res2downSmamid= security(syminfo.tickerid, res2, downSmamid)
+res2downSmalow= security(syminfo.tickerid, res2, downSmalow)
+
+res3upSmahigh= security(syminfo.tickerid, res3, upSmahigh)
+res3upSmamid= security(syminfo.tickerid, res3, upSmamid)
+res3upSmalow= security(syminfo.tickerid, res3, upSmalow)
+res3downSmahigh= security(syminfo.tickerid, res3, downSmahigh)
+res3downSmamid= security(syminfo.tickerid, res3, downSmamid)
+res3downSmalow= security(syminfo.tickerid, res3, downSmalow)
+
+res4upSmahigh= security(syminfo.tickerid, res4, upSmahigh)
+res4upSmamid= security(syminfo.tickerid, res4, upSmamid)
+res4upSmalow= security(syminfo.tickerid, res4, upSmalow)
+res4downSmahigh= security(syminfo.tickerid, res4, downSmahigh)
+res4downSmamid= security(syminfo.tickerid, res4, downSmamid)
+res4downSmalow= security(syminfo.tickerid, res4, downSmalow)
+
+
+
+
+
+//Bands/Cloud calculations
+midbandres1 = (MTFupSmahigh+MTFdownSmalow)*0.5
+midbandres2 = (res2upSmahigh+res2downSmalow)*0.5
+midbandres3 = (res3upSmahigh+res3downSmalow)*0.5
+midbandres4 = (res4upSmahigh+res4downSmalow)*0.5
+
+midavgres1 = (Dupmid+Ddownmid)*0.5
+midavgres2 = (res2upmid+res2downmid)*0.5
+midavgres3 = (res3upmid+res3downmid)*0.5
+midavgres4 = (res4upmid+res4downmid)*0.5
+
+
+//Trend Shift switch res 1
+condATrigger1 = rising(midbandres1, 1)
+condBTrigger1 = falling(midbandres1, 1)
+condA1 = false
+condB1 = false
+var LastCondWasA1 = false
+if condATrigger1 and not LastCondWasA1
+    condA1 := true
+    LastCondWasA1 := true
+else
+    if condBTrigger1 and LastCondWasA1
+        condB1 := true
+        LastCondWasA1 := false
+
+//Trend Shift switch res 2
+condATrigger2 = rising(midbandres2, 1)
+condBTrigger2 = falling(midbandres2, 1)
+condA2 = false
+condB2 = false
+var LastCondWasA2 = false
+if condATrigger2 and not LastCondWasA2
+    condA2 := true
+    LastCondWasA2 := true
+else
+    if condBTrigger2 and LastCondWasA2
+        condB2 := true
+        LastCondWasA2 := false
+
+//Trend Shift switch res 3
+condATrigger3 = rising(midbandres3, 1)
+condBTrigger3 = falling(midbandres3, 1)
+condA3 = false
+condB3 = false
+var LastCondWasA3 = false
+if condATrigger3 and not LastCondWasA3
+    condA3 := true
+    LastCondWasA3 := true
+else
+    if condBTrigger3 and LastCondWasA3
+        condB3 := true
+        LastCondWasA3 := false
+        
+//Trend Shift switch res 4
+condATrigger4 = rising(midbandres4, 1)
+condBTrigger4 = falling(midbandres4, 1)
+condA4 = false
+condB4 = false
+var LastCondWasA4 = false
+if condATrigger4 and not LastCondWasA4
+    condA4 := true
+    LastCondWasA4 := true
+else
+    if condBTrigger4 and LastCondWasA4
+        condB4 := true
+        LastCondWasA4 := false
+
+
+
+
+bullres1 = LastCondWasA1
+bullres2 = LastCondWasA2
+bullres3 = LastCondWasA3
+bullres4 = LastCondWasA4
+////////////
+var bullres1weight=0
+if bullres1
+    bullres1weight:=10
+else
+    bullres1weight:=0
+////////////
+var bullres2weight=0
+if bullres2
+    bullres2weight:=20
+else
+    bullres2weight:=0
+////////////
+var bullres3weight=0
+if bullres3
+    bullres3weight:=30
+else
+    bullres3weight:=0
+
+var bullres4weight=0
+if bullres4
+    bullres4weight:=40
+else
+    bullres4weight:=0
+
+
+
+bearres1 = not LastCondWasA1
+bearres2 = not LastCondWasA2
+bearres3 = not LastCondWasA3
+bearres4 = not LastCondWasA4
+
+////////////
+var bearres1weight=0
+if bearres1
+    bearres1weight:=-10
+else
+    bearres1weight:=0
+////////////
+var bearres2weight=0
+if bearres2
+    bearres2weight:=-20
+else
+    bearres2weight:=0
+////////////
+var bearres3weight=0
+if bearres3
+    bearres3weight:=-30
+else
+    bearres3weight:=0
+
+var bearres4weight=0
+if bearres4
+    bearres4weight:=-40
+else
+    bearres4weight:=0
+
+    
+weight = bullres1weight+bullres2weight+ bullres3weight+bullres4weight + bearres1weight+bearres2weight+ bearres3weight+bearres4weight
+
+//-----------------------------------------------------------------
+// Color Gradient Function Inputs
+bool    _1          = false
+bool	colFlip		= input(false,				"Invert Colors")
+bool	colBar		= false
+string	colTheme	= "Red and Green"
+
+
+//-----------------------------------------------------------------
+// In Range Function {
+f_in(_min, _src, _max) => (_min < _src) and (_src <= _max)
+// }
+
+
+//-----------------------------------------------------------------
+// Color Gradient Function {
+f_colGrad (_src , _minSrc, _maxSrc, _theme, _flip) =>
+	_col1	= _theme == "Red and Green" ? #E50003 : _theme == "Red and Blue" ? #E50000 : _theme == "Blue and White" ? #002DBF : _theme == "Rainbow" ? #E50000 : #E50003
+	_col2	= _theme == "Red and Green" ? #E30D00 : _theme == "Red and Blue" ? #D8020A : _theme == "Blue and White" ? #0D38C2 : _theme == "Rainbow" ? #E6023B : #E50003
+	_col3	= _theme == "Red and Green" ? #E12100 : _theme == "Red and Blue" ? #CC0414 : _theme == "Blue and White" ? #1A43C5 : _theme == "Rainbow" ? #E70579 : #E50003
+	_col4	= _theme == "Red and Green" ? #DF3500 : _theme == "Red and Blue" ? #C0071E : _theme == "Blue and White" ? #284EC9 : _theme == "Rainbow" ? #E908B7 : #E50003
+	_col5	= _theme == "Red and Green" ? #DD4800 : _theme == "Red and Blue" ? #B40928 : _theme == "Blue and White" ? #3559CC : _theme == "Rainbow" ? #E00BEA : #E50003
+	_col6	= _theme == "Red and Green" ? #DB5B00 : _theme == "Red and Blue" ? #A80B32 : _theme == "Blue and White" ? #4364CF : _theme == "Rainbow" ? #A70DEB : #E50003
+	_col7	= _theme == "Red and Green" ? #D96E00 : _theme == "Red and Blue" ? #9C0E3C : _theme == "Blue and White" ? #506FD3 : _theme == "Rainbow" ? #6E10ED : #E50003
+	_col8	= _theme == "Red and Green" ? #D78000 : _theme == "Red and Blue" ? #901046 : _theme == "Blue and White" ? #5D7AD6 : _theme == "Rainbow" ? #3613EE : #E50003
+	_col9	= _theme == "Red and Green" ? #D59200 : _theme == "Red and Blue" ? #841250 : _theme == "Blue and White" ? #6B85D9 : _theme == "Rainbow" ? #162DEF : #E50003
+	_col10	= _theme == "Red and Green" ? #D3A400 : _theme == "Red and Blue" ? #78155A : _theme == "Blue and White" ? #7890DD : _theme == "Rainbow" ? #1969F1 :#E50003
+	_col11	= _theme == "Red and Green" ? #D1B500 : _theme == "Red and Blue" ? #6C1764 : _theme == "Blue and White" ? #869BE0 : _theme == "Rainbow" ? #1CA4F2 :#E50003
+	_col12	= _theme == "Red and Green" ? #CFC600 : _theme == "Red and Blue" ? #601A6E : _theme == "Blue and White" ? #93A6E4 : _theme == "Rainbow" ? #1FDFF4 :#E50003
+	_col13	= _theme == "Red and Green" ? #C2CD00 : _theme == "Red and Blue" ? #541C78 : _theme == "Blue and White" ? #A1B1E7 : _theme == "Rainbow" ? #22F5D2 :#E50003
+	_col14	= _theme == "Red and Green" ? #AECB00 : _theme == "Red and Blue" ? #481E82 : _theme == "Blue and White" ? #AEBCEA : _theme == "Rainbow" ? #25F69C :#E50003
+	_col15	= _theme == "Red and Green" ? #9AC900 : _theme == "Red and Blue" ? #3C218C : _theme == "Blue and White" ? #BBC7EE : _theme == "Rainbow" ? #28F867 :#E50003
+	_col16	= _theme == "Red and Green" ? #87C700 : _theme == "Red and Blue" ? #302396 : _theme == "Blue and White" ? #C9D2F1 : _theme == "Rainbow" ? #2CF933 :#E50003
+	_col17	= _theme == "Red and Green" ? #74C500 : _theme == "Red and Blue" ? #2425A0 : _theme == "Blue and White" ? #D6DDF4 : _theme == "Rainbow" ? #5DFA2F :#E50003
+	_col18	= _theme == "Red and Green" ? #61C300 : _theme == "Red and Blue" ? #1828AA : _theme == "Blue and White" ? #E4E8F8 : _theme == "Rainbow" ? #96FC32 :#E50003
+	_col19	= _theme == "Red and Green" ? #4FC100 : _theme == "Red and Blue" ? #0C2AB4 : _theme == "Blue and White" ? #F1F3FB : _theme == "Rainbow" ? #CDFD35 :#E50003
+	_col20	= _theme == "Red and Green" ? #3DBF00 : _theme == "Red and Blue" ? #002DBF : _theme == "Blue and White" ? #FFFFFF : _theme == "Rainbow" ? #FFF938 :#E50003
+	_max = _maxSrc, _min = _minSrc, _v1 = abs(_max - _min), _v2 = _v1 / 20
+	_c1  = _min + _v2, _c2  = _c1  + _v2, _c3  = _c2  + _v2, _c4  = _c3  + _v2, _c5  = _c4  + _v2
+	_c6  = _c5  + _v2, _c7  = _c6  + _v2, _c8  = _c7  + _v2, _c9  = _c8  + _v2, _c10 = _c9  + _v2
+	_c11 = _c10 + _v2, _c12 = _c11 + _v2, _c13 = _c12 + _v2, _c14 = _c13 + _v2, _c15 = _c14 + _v2
+	_c16 = _c15 + _v2, _c17 = _c16 + _v2, _c18 = _c17 + _v2, _c19 = _c18 + _v2, _c20 = _c19 + _v2
+	_result =
+	  _src < _min            ? _flip ? _col20 : _col1  : f_in(_min, _src, _c1)  ? _flip ? _col20 : _col1  : f_in(_c1,  _src, _c2)  ? _flip ? _col19 : _col2  :
+	  f_in(_c2,  _src, _c3)  ? _flip ? _col18 : _col3  : f_in(_c3,  _src, _c4)  ? _flip ? _col17 : _col4  : f_in(_c4,  _src, _c5)  ? _flip ? _col16 : _col5  :
+	  f_in(_c5,  _src, _c6)  ? _flip ? _col15 : _col6  : f_in(_c6,  _src, _c7)  ? _flip ? _col14 : _col7  : f_in(_c7,  _src, _c8)  ? _flip ? _col13 : _col8  :
+	  f_in(_c8,  _src, _c9)  ? _flip ? _col12 : _col9  : f_in(_c9,  _src, _c10) ? _flip ? _col11 : _col10 : f_in(_c10, _src, _c11) ? _flip ? _col10 : _col11 :
+	  f_in(_c11, _src, _c12) ? _flip ? _col9  : _col12 : f_in(_c12, _src, _c13) ? _flip ? _col8  : _col13 : f_in(_c13, _src, _c14) ? _flip ? _col7  : _col14 :
+	  f_in(_c14, _src, _c15) ? _flip ? _col6  : _col15 : f_in(_c15, _src, _c16) ? _flip ? _col5  : _col16 : f_in(_c16, _src, _c17) ? _flip ? _col4  : _col17 :
+	  f_in(_c17, _src, _c18) ? _flip ? _col3  : _col18 : f_in(_c18, _src, _c19) ? _flip ? _col2  : _col19 : f_in(_c19, _src, _c20) ? _flip ? _col1  : _col20 : 
+	  _src > _c20            ? _flip ? _col1  : _col20 : na
+// }
+
+
+//-----------------------------------------------------------------
+// Colors {
+trendCol = f_colGrad(weight, -101, 101, colTheme, colFlip)
+// }
+
+//-----------------------------------------------------------------
+
+// }
+
+bgcolor(trendCol, transp=40)
+plotshape(0.2, style=shape.square,color= bullres1?color.green:color.red, location=location.absolute, size=size.auto, transp=10)
+plotshape(0.1, style=shape.square,color= bullres2?color.green:color.red, location=location.absolute, size=size.auto, transp=10)
+plotshape(0.0, style=shape.square,color= bullres3?color.green:color.red, location=location.absolute, size=size.auto, transp=10)
+plotshape(-0.1, style=shape.square,color= bullres4?color.green:color.red, location=location.absolute, size=size.auto, transp=10)
+
+
+
+//bgcolor(bearres1?color.red:na, transp = 80)
+//bgcolor(bearres2?color.red:na, transp = 60)
+//bgcolor(bearres3?color.red:na, transp = 40)
+//bgcolor(bearres4?color.red:na, transp = 20)
+
+//Deviations
+deviation(src1, src2) => ( (src1 - src2) / ( ( src1 + src2 ) / 2 ) ) * 100
+dev1_2=deviation(midbandres1, midbandres1)
+dev2_3=deviation(midbandres2, midbandres3)
+dev3_4=deviation(midbandres3, midbandres4)
+
+
+avgdev = avg(dev1_2, dev2_3, dev3_4)
+
+//=====================================================================================================
+avgdevthreshold = input(8)
+longCondition = bullres1 and bullres2 and bullres3 and bullres4 
+shortCondition = bearres1 and bearres2 and bearres3 and bearres4
+avgdevsma= sma(avgdev, 100)
+longClose = (bearres1 and (bearres2 or bearres3 or bearres4))
+shortClose = (bullres1 and (bullres2 or bullres3 or bullres4))
+//plot(avgdev, linewidth=2, color=avgdev < 0 ? color.red : color.green, style = plot.style_histogram, transp=20)
+//plot(avgdevsma, linewidth=2, color=color.blue, style = plot.style_line, transp=20)
+
+if testPeriod()
+    strategy.entry("Long", 1, when=longCondition)
+    strategy.entry("Short", 0,  when=shortCondition)
+    strategy.close("Long", when=longClose)
+    strategy.close("Short", when=shortClose)
