@@ -1,0 +1,124 @@
+//Created by @bartbtc on Twitter
+
+study(title="Killzones / Daily Open / Weekly Open / Monthly Open by @bartbtc",shorttitle="Killzones / Opens", overlay=true)
+timeinrange(res, sess) => time(res, sess) != 0
+
+// **** Checkboxes and custom Session
+iKZNY = input(true, title="New York Kill Zone")
+iOpenKZLondon = input(true, title="London Open Kill Zone")
+iCloseKZLondon = input(false, title="London Close Kill Zone")
+iDailyOpen = input(true, title="Daily Open")
+KZNY = input('1200-1400:1234567', type=session, title="New York Kill Zone")
+LondonOpenKZ = input('0700-0900:1234567', type=session, title="London Open Kill Zone")
+LondonCloseKZ = input('1600-1800:1234567', type=session, title="London Close Kill Zone")
+DailyOpen = input('2345-0045:1234567', type=session, title="Daily open")
+
+iRealOpenSessionAlertBar = input(false, title="Real Open Session Alert Bar")
+NYOpenAlertBar = input('1330-1345:1234567', type=session, title="New York Open Session")
+LondonOpenAlertBar = input('0700-0715:1234567', type=session, title="London Open Session")
+LondonCloseAlertBar = input('1545-1600:1234567', type=session, title="London Close Session")
+DailyOpenAlertBar = input('0000-0015:1234567', type=session, title="Daily Open")
+
+// **** Logic
+sessToUse = iKZNY == 1 ? KZNY : '0000-0000:1234567'
+sessToUse2 = iRealOpenSessionAlertBar == 1 ? NYOpenAlertBar : '0000-0000:1234567'
+sessToUse3 = iOpenKZLondon == 1 ? LondonOpenKZ : '0000-0000:1234567'
+sessToUse4 = iRealOpenSessionAlertBar == 1 ? LondonOpenAlertBar : '0000-0000:1234567'
+sessToUse5 = iCloseKZLondon == 1 ? LondonCloseKZ : '0000-0000:1234567'
+sessToUse6 = iRealOpenSessionAlertBar == 1 ? LondonCloseAlertBar : '0000-0000:1234567'
+sessToUse7 = iDailyOpen == 1 ? DailyOpen : '0000-0000:1234567'
+sessToUse8 = iRealOpenSessionAlertBar == 1 ? DailyOpenAlertBar : '0000-0000:1234567'
+
+// *** Apply custom rules
+bgPlot = (iKZNY == 0 ? time(period) : time(period, sessToUse)) 
+bgPlot2 = (iRealOpenSessionAlertBar == 0 ? time(period) : time(period, sessToUse2)) 
+bgPlot3 = (iOpenKZLondon == 0 ? time(period) : time(period, sessToUse3)) 
+bgPlot4 = (iRealOpenSessionAlertBar == 0 ? time(period) : time(period, sessToUse4)) 
+bgPlot5 = (iCloseKZLondon == 0 ? time(period) : time(period, sessToUse5)) 
+bgPlot6 = (iRealOpenSessionAlertBar == 0 ? time(period) : time(period, sessToUse6)) 
+bgPlot7 = (iDailyOpen == 0 ? time(period) : time(period, sessToUse7))
+bgPlot8 = (iRealOpenSessionAlertBar == 0 ? time(period) : time(period, sessToUse8))
+
+showlessthaninput= input(60, title='Show on timeframes below (n) minutes: ', step=15)
+lessthan = interval<=showlessthaninput and isintraday
+//2hrOrLess = isintraday and interval==(60 or 45 or 30 or 15 or 5 or 3 or 1) ? true : false
+//**** Plot as background
+bgcolor(lessthan and iKZNY and bgPlot > 0 ? red : na, transp=90, title='NY open') 
+bgcolor(lessthan and iKZNY and iRealOpenSessionAlertBar and bgPlot2 > 0 ? red : na, transp=40, title='NY open') 
+bgcolor(lessthan and iOpenKZLondon and bgPlot3 > 0 ? green : na, transp=90, title='London open') 
+bgcolor(lessthan and iOpenKZLondon and iRealOpenSessionAlertBar and bgPlot4 > 0 ? green : na, transp=40, title='London open') 
+bgcolor(lessthan and iCloseKZLondon and bgPlot5 > 0 ? olive : na, transp=90, title='London close') 
+bgcolor(lessthan and iCloseKZLondon and iRealOpenSessionAlertBar and bgPlot6 > 0 ? olive : na, transp=50, title='London close') 
+bgcolor(lessthan and iDailyOpen and bgPlot7 > 0 ? blue : na, transp=80, title='Daily open vertical bar') 
+bgcolor(lessthan and iDailyOpen and iRealOpenSessionAlertBar and bgPlot8 > 0 ? blue : na, transp=80, title='Daily open vertical bar')
+
+
+
+//PRevious OHLC
+pdo = security(tickerid, 'D', open[1])
+pdc = security(tickerid, 'D', close[1])
+pdh = security(tickerid, 'D', high[1])
+pdl = security(tickerid, 'D', low[1])
+
+pwo = security(tickerid, 'W', open[1])
+pwc = security(tickerid, 'W', close[1])
+pwh = security(tickerid, 'W', high[1])
+pwl = security(tickerid, 'W', low[1])
+
+pmo = security(tickerid, 'M', open[1])
+pmc = security(tickerid, 'M', close[1])
+pmh = security(tickerid, 'M', high[1])
+pml = security(tickerid, 'M', low[1])
+
+
+//Colour
+opencolour=pdo != pdo[1] ? na :  #075003 
+highcolour=pdo != pdo[1] ? na : #000000
+lowcolour=pdo != pdo[1] ? na : #000000
+closecolour=pdo != pdo[1] ? na : #FF0000
+//Weekly open colour
+closecolourw= pwo != pwo[1] ? na : #800000
+//Monthly open colour
+closecolourm= pmo != pmo[1] ? na : #4B0082
+
+//Daily Plots
+showlessthaninputdailyopen= input(60, title='Show DAILY open on timeframes below (n) minutes: ', step=15)
+lessthandailyopen = interval<=showlessthaninput and isintraday
+offs_daily = 0 
+//plot(lessthandailyopen ? pdo : na, title="Prev Open Daily", style=line, linewidth=1, color=opencolour)
+plot(lessthandailyopen ? pdc : na, title="Daily open", style=line, linewidth=1, color=closecolour)
+//plot(lessthandailyopen ? pdh : na, title="Prev High", style=line, linewidth=1, color=highcolour)
+//plot(lessthandailyopen ? pdl : na, title="Prev Low", style=line, linewidth=1, color=lowcolour)
+
+//Weekly plots
+showlessthan= input(true, title='Show Weekly open (shows only on timeframes less than weekly)')
+lessthanw = not ismonthly and not isweekly and showlessthan
+plot(lessthanw ? pwc : na, title="Weekly Open", style=line, linewidth=2, color=closecolourw)
+
+//Monthly plots
+showlessthanmonthly= input(true, title='Show Monthly open (shows only on timeframes less than Monthly)')
+lessthanm = not ismonthly and showlessthanmonthly
+plot(lessthanm ? pmc : na, title="Monthly Open", style=line, linewidth=2, color=closecolourm)
+//ALERTS
+
+bearreject(level) => open<level and high>level and close<level
+bullreject(level) => open>level and low<level and close>level
+doblrej = bullreject(pdc)
+dobrrej = bearreject(pdc)
+woblrej = bullreject(pwc)
+wobrrej = bearreject(pwc)
+moblrej = bullreject(pmc)
+mobrrej = bearreject(pmc)
+alertcondition(woblrej, title="Bullish Rejection Daily Open", message="Bullish Rejection Daily Open, {{ticker}} - {{interval}}")
+alertcondition(wobrrej, title= 'Bearish Rejection Daily Open', message="Bearish Rejection Daily Open, {{ticker}} - {{interval}}")
+alertcondition(woblrej, title="Bullish Rejection Weekly Open", message="Bullish Rejection Weekly Open, {{ticker}} - {{interval}}")
+alertcondition(wobrrej, title= 'Bearish Rejection Weekly Open', message="Bearish Rejection Weekly Open, {{ticker}} - {{interval}}")
+alertcondition(moblrej, title="Bullish Rejection Monthly Open", message="Bullish Rejection Monthly Open, {{ticker}} - {{interval}}")
+alertcondition(mobrrej, title= 'Bearish Rejection Monthly Open', message="Bearish Rejection Monthly Open, {{ticker}} - {{interval}}")
+
+
+
+
+
+
+
