@@ -1,0 +1,130 @@
+//@version=4
+// FUNCTIONS required
+f_highest_sr(_source, _length) =>
+    float _return = _source
+    for _i = 0 to max(0, min(_length, bar_index)-1)
+        _return := max(_source[_i], _return)
+    _return
+    
+f_lowest_sr(_source, _length) => 
+    float _return = _source
+    for _i = 0 to max(0, min(_length, bar_index)-1)
+        _return := min(_source[_i], _return)
+    _return
+
+f_barssince(_cond, _count) => _barssince=bar_index-valuewhen(_cond, bar_index, _count)
+
+//---------------options
+study("Structure break",overlay=true)
+res1 = input('D')
+n=1
+numbars=1
+up = high[n+1]<high[n] and high[n]>high
+down = low[n+1]>low[n] and low[n]<low
+lookback = input(48, title="check lowest swing low in x bars back")
+plothighs = input(true, title="Plot Highs")
+plotlows = input(true, title="Plot Lows")
+plotmids = input(true, title="Plot Midpoints")
+
+
+//Break conditions
+
+downlow= valuewhen(down, low[numbars], 0)
+downlow2 = valuewhen(down, low[numbars], 1)
+downlow3 = valuewhen(down, low[numbars], 2)
+downlow4 = valuewhen(down, low[numbars], 3)
+lowdownlow = lowest(downlow, lookback)
+bearbreak = (open>downlow and close<downlow and close<low[1])
+bearbreak2 =(open>lowdownlow and close<lowdownlow and close<low[1])
+
+
+//-------------------
+
+uphigh = valuewhen(up, high[numbars], 0)
+uphigh2 = valuewhen(up, high[numbars], 1)
+uphigh3 = valuewhen(up, high[numbars], 2)
+uphigh4 = valuewhen(up, high[numbars], 3)
+highuphigh =highest(uphigh, lookback)
+bullbreak = (open<uphigh and close>uphigh and close>high[1])
+bullbreak2 = (open<highuphigh and close>highuphigh and close>high[1])
+
+downlow_(num)=> valuewhen(down, low[numbars], num)
+
+downlow1 = downlow_(0)
+downlow1_2 = min(downlow_(0), downlow_(1))
+downlow1_3 = min(downlow_(0), downlow_(1), downlow_(2))
+downlow1_4 = min(downlow_(0), downlow_(1), downlow_(2), downlow_(3))
+downlow1_5 = min(downlow_(0), downlow_(1), downlow_(2), downlow_(3), downlow_(4))
+downlow1_6 = min(downlow_(0), downlow_(1), downlow_(2), downlow_(3), downlow_(4), downlow_(5))
+
+
+bearbreak_(lvl) => (open>lvl and close<lvl and close<low[1])
+bear1 = bearbreak_(downlow1)
+bear2 = bearbreak_(downlow1_2)
+bear3 = bearbreak_(downlow1_3)
+bear4 = bearbreak_(downlow1_4)
+bear5 = bearbreak_(downlow1_5)
+bear6 = bearbreak_(downlow1_6)
+bearcol = (bear1 or bear2 or bear3 or bear4 or bear5 or bear6) 
+
+uphigh_(num)=> valuewhen(up, high[numbars], num)
+
+uphigh1 = uphigh_(0)
+uphigh1_2 = max(uphigh_(0), uphigh_(1))
+uphigh1_3 = max(uphigh_(0), uphigh_(1), uphigh_(2))
+uphigh1_4 = max(uphigh_(0), uphigh_(1), uphigh_(2), uphigh_(3))
+uphigh1_5 = max(uphigh_(0), uphigh_(1), uphigh_(2), uphigh_(3), uphigh_(4))
+uphigh1_6 = max(uphigh_(0), uphigh_(1), uphigh_(2), uphigh_(3), uphigh_(4), uphigh_(5))
+
+highestup(num) => f_highest_sr(close, f_barssince(up, num))
+
+bullbreak_(lvl) => (open<lvl and close>lvl and close>high[1])
+bull1 = bullbreak_(uphigh1)
+bull2 = bullbreak_(uphigh1_2) 
+bull3 = bullbreak_(uphigh1_3)
+bull4 = bullbreak_(uphigh1_4)
+bull5 = bullbreak_(uphigh1_5)
+bull6 = bullbreak_(uphigh1_6)
+bullcol = bull1 or bull2 or bull3 or bull4 or bull5 or bull6
+
+
+
+//Plot values
+bullbhigh = valuewhen(bullbreak or bullbreak2 or bullcol, high, 0)
+bullbmid = valuewhen(bullbreak or bullbreak2 or bullcol, hl2, 0)
+bullblow = valuewhen(bullbreak or bullbreak2 or bullcol, low, 0)
+
+bearbhigh = valuewhen(bearbreak or bearbreak2 or bearcol, high, 0)
+bearbmid = valuewhen(bearbreak or bearbreak2 or bearcol, hl2, 0)
+bearblow = valuewhen(bearbreak or bearbreak2 or bearcol, low, 0)
+
+
+res1bullbhigh = security(syminfo.tickerid, res1, bullbhigh, barmerge.gaps_off, barmerge.lookahead_on)
+res1bullbmid = security(syminfo.tickerid, res1, bullbmid, barmerge.gaps_off, barmerge.lookahead_on)
+res1bullblow = security(syminfo.tickerid, res1, bullblow, barmerge.gaps_off, barmerge.lookahead_on)
+
+res1bearbhigh = security(syminfo.tickerid, res1, bearbhigh, barmerge.gaps_off, barmerge.lookahead_on)
+res1bearblow = security(syminfo.tickerid, res1, bearblow, barmerge.gaps_off, barmerge.lookahead_on)
+res1bearbmid = security(syminfo.tickerid, res1, bearbmid, barmerge.gaps_off, barmerge.lookahead_on)
+
+bull = bullbreak or bullbreak2 or bullcol
+bear = bearbreak or bearbreak2 or bearcol
+barcolor(color=bull?#006400:na)
+barcolor(color=bear?color.maroon:na)
+
+plot(plothighs?res1bearbhigh:na, color=color.maroon)
+plot(plotlows?res1bearblow:na, color=color.maroon)
+plot(plotmids?res1bearbmid:na, color=color.maroon)
+
+plot(plothighs?res1bullbhigh:na, color=#006400)
+plot(plotlows?res1bullblow:na, color=#006400)
+plot(plotmids?res1bullbmid:na, color=#006400)
+
+alertcondition(bull, title="Bullish SB (current TV TF)", message="Bullish Structure Break, {{ticker}} - {{interval}}")
+alertcondition(bear, title="Bearish SB (current TV TF", message="Bearish Structure Break, {{ticker}} - {{interval}}")
+bearreject(level) => open<level and high>level and close<level
+bullreject(level) => open>level and low<level and close>level
+bearbreject = bullreject(res1bearbhigh) or bullreject(res1bearbmid) or bullreject(res1bearblow) or bearreject(res1bearbhigh) or bearreject(res1bearbmid) or bearreject(res1bearblow)
+bullbreject = bullreject(res1bullbhigh) or bullreject(res1bullbmid) or bullreject(res1bullblow) or bearreject(res1bullbhigh) or bearreject(res1bullbmid) or bearreject(res1bullblow)
+alertcondition(bearbreject, title="Rejection from HTF bearish break level", message="Rejection from HTF bearish structure break level (low/mid/high), {{ticker}} - {{interval}}")
+alertcondition(bearbreject, title="Rejection from HTF bullish break level", message="Rejection from HTF bullish structure break level(low/mid/high), {{ticker}} - {{interval}}")
