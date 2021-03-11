@@ -1,0 +1,81 @@
+//@version=4
+
+study("MTF close times",overlay=true, max_bars_back=1000)
+
+//Resolution settings
+res1 = input('60',title="Timeframe 1 (1h or under)" )
+res2 = input('240',title="Timeframe 2(4h or under)" )
+res3 = 'D'
+res4 = 'W'
+res5 = 'M'
+
+
+
+//LTF
+res1close = security(syminfo.tickerid, res1, time_close)
+res1open = security(syminfo.tickerid, res1, time)
+res1candletime = (res1open-res1open[1])
+res1time = res1candletime+res1close
+
+res2close = security(syminfo.tickerid, res2, time_close)
+res2open = security(syminfo.tickerid, res2, time)
+res2candletime = (res2open-res2open[1])
+res2time = res2candletime+res2close
+
+res3close = security(syminfo.tickerid, res3, time_close)
+res3open = security(syminfo.tickerid, res3, time)
+res3candletime = (res3open-res3open[1])
+res3time = res3candletime+res3close
+
+res4close = security(syminfo.tickerid, res4, time_close)
+res4open = security(syminfo.tickerid, res4, time)
+res4candletime = (res4open-res4open[1])
+res4time = res4candletime+res4close
+
+res5close = security(syminfo.tickerid, res5, time_close)
+res5open = security(syminfo.tickerid, res5, time)
+res5candletime = (res5open-res5open[1])
+res5time = res5candletime+res5close
+
+//res6close = security(syminfo.tickerid, res6, time_close)
+//res6open = security(syminfo.tickerid, res6, time)
+//res6candletime = (res6open-res6open[1])
+//res6time = res6candletime+res6close
+
+//res1
+if timeframe.multiplier<60 and barstate.islast  and not timeframe.isdwm
+    labelres1= label.new(res1time, open, text=res1, style=label.style_xcross, xloc=xloc.bar_time, size=size.tiny)
+    label.delete(labelres1[1])
+    //lineres1 = line.new(res1time, -1000, res1close, 1000, xloc=xloc.bar_time, style=line.style_dashed, extend=extend.both)
+    //line.delete(lineres1[1])
+
+//res2
+if timeframe.multiplier<240 and barstate.islast and not timeframe.isdwm
+    labelres2= label.new(res2time, open, text=res2, style=label.style_xcross, xloc=xloc.bar_time, size=size.tiny)
+    label.delete(labelres2[1])
+    //lineres2 = line.new(res2time, -1000, res2close, 1000, xloc=xloc.bar_time, style=line.style_dashed, extend=extend.both)
+    //line.delete(lineres2[1])
+
+//res3 (D)
+if timeframe.isintraday and barstate.islast
+    labelres3= label.new(res3time, open, text=res3, style=label.style_xcross, xloc=xloc.bar_time, size=size.tiny)
+    label.delete(labelres3[1])
+    //lineres3 = line.new(res3time, -1000, res3close, 1000, xloc=xloc.bar_time, style=line.style_dashed, extend=extend.both)
+    //line.delete(lineres3[1])
+
+//res4 (W)
+if timeframe.isdaily or timeframe.isintraday and barstate.islast
+    labelres4= label.new(res4time, open-30, text=res4, style=label.style_xcross, xloc=xloc.bar_time, size=size.tiny)
+    label.delete(labelres4[1])
+    //lineres4 = line.new(res4time, -1000, res4close, 1000, xloc=xloc.bar_time, style=line.style_dashed, extend=extend.both)
+    //line.delete(lineres4[1])
+    
+//res5 (M)
+if timeframe.period=='W' or timeframe.isintraday or timeframe.isdaily and barstate.islast
+    labelres5= label.new(res5time, open +30, text=res5, style=label.style_xcross, xloc=xloc.bar_time, size=size.tiny)
+    label.delete(labelres5[1])
+    //lineres5 = line.new(res5time, -1000, res5close, 1000, xloc=xloc.bar_time, style=line.style_dashed, extend=extend.both)
+    //line.delete(lineres5[1])
+
+
+//=====================================================================================================
