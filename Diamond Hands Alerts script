@@ -1,0 +1,74 @@
+//@version=4
+study(title="Diamond Hands alerts", shorttitle="Diamond Hands alerts", overlay=true)
+
+
+//HA plot
+handleHA = heikinashi(syminfo.tickerid)
+openHA = security(handleHA, timeframe.period, open)
+highHA = security(handleHA, timeframe.period, high)
+lowHA = security(handleHA, timeframe.period, low)
+closeHA = security(handleHA, timeframe.period, close)
+src = openHA
+
+/////trendmaster
+Factor = input(16, minval=1, maxval=140)
+Pd = input(1, minval=1, maxval=140)
+Up = closeHA - Factor * atr(Pd)
+Dn = closeHA + Factor * atr(Pd)
+TrendUp = float(na)
+TrendUp := closeHA[1] > TrendUp[1] ? max(Up, TrendUp[1]) : Up
+TrendDown = float(na)
+TrendDown := closeHA[1] < TrendDown[1] ? min(Dn, TrendDown[1]) : Dn
+Trend = int(na)
+Trend := closeHA > TrendDown[1] ? 1 : closeHA < TrendUp[1] ? -1 : nz(Trend[1], 1)
+Tsl = Trend == 1 ? TrendUp : TrendDown
+linecolor = Trend == 1 ? color.green : color.red
+plot(Tsl, color=linecolor, style=plot.style_line, linewidth=2, title="SuperTrend")
+
+//Stop runs
+lookbacklength = input(20, minval=1, step=5, title="stop run lookback length")
+
+//Volumethreshold
+volumethreshold = input(1, minval=1, maxval=3, step=0.05, title="candle vol multiplier")
+
+//
+//Long wick
+redcandle = closeHA < openHA
+greencandle = closeHA > openHA
+topWickLen = redcandle ? highHA - openHA : highHA - closeHA
+botWickLen = greencandle ? openHA - lowHA : closeHA - lowHA
+bodyLen = redcandle ? openHA - closeHA : closeHA - openHA
+
+
+
+// Put your long and short rules here
+longCondition = low < lowest(low, lookbacklength)[1] and 
+   close > lowest(close[1], lookbacklength) and not na(close[lookbacklength]) and 
+   close > Tsl
+
+shortCondition = high > highest(high, lookbacklength)[1] and 
+   close < highest(close[1], lookbacklength) and not na(close[lookbacklength]) and 
+   close < Tsl
+
+
+//hold time (in bars)
+holdbarslen = input(40, minval=1, step=5, title="Hold time in number of bars: ")
+holdbars = barssince(longCondition or shortCondition) > holdbarslen
+
+
+longClose = crossunder(close, Tsl)
+
+shortClose = crossover(close, Tsl)
+
+plotshape(longCondition, style = shape.triangleup, size = size.tiny, color = color.green, location = location.belowbar, transp=60)
+plotshape(shortCondition, style = shape.triangledown, size = size.tiny, color = color.red, location = location.abovebar, transp=60)
+plotshape(longClose)
+plotshape(shortClose)
+
+
+
+
+alertcondition(longCondition, title="Diamond hands entry BUY", message="Diamond hands entry BUY at {{close}}, stop at wick: {{low}}, {{ticker}} - {{interval}}")
+alertcondition(shortCondition, title="Diamond hands entry SELL", message="Diamond hands entry SELL at {{close}}, stop at wick:{{high}}, {{ticker}} - {{interval}}")
+
+alertcondition(longClose or shortClose, title="Diamond hands exit (long and short)", message="Diamond hands EXIT (long or short) at {{close}}, {{ticker}} - {{interval}}")
