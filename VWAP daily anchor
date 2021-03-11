@@ -1,0 +1,72 @@
+//@version=4
+study(title = "VWAP Daily Anchor", shorttitle = "VWAP Daily Anchor", overlay = true)
+src = hlc3
+std1 = input(title = "STDEV 1", defval = 0.375, type = input.float, step = 0.05)
+std2 = input(title = "STDEV 2", defval = 1.125, type = input.float, step = 0.05)
+std3 = input(title = "STDEV 3", defval = 1.875, type = input.float, step = 0.05)
+showStd = input(true, title = "Show STDEV Bands")
+
+
+startD = security(syminfo.tickerid, "D", time, lookahead = true)
+newSession = iff(change(startD), 1, 0)
+
+getVWAP(newSession) =>
+    p = hlc3 * volume
+    p := newSession ? hlc3 * volume : p[1] + hlc3 * volume
+    
+    vol = 0.0
+    vol := newSession ? volume : vol[1] + volume
+    
+    v = p / vol
+    
+    // Incremental weighted standard deviation (rolling)
+    // http://people.ds.cam.ac.uk/fanf2/hermes/doc/antiforgery/stats.pdf (part 5)
+    // x[i] = hlc3[i], w[i] = volume[i], u[i] - v[i]
+    
+    Sn = 0.0
+    Sn := newSession ? 0 : Sn[1] + volume * (hlc3 - v[1]) * (hlc3 - v)
+    std = sqrt(Sn / vol)
+    
+    [v, std]
+    
+getCurrentLine(x, price, col) =>
+    var line l = na
+    
+    if not na(price) and x > 0
+        if na(l)
+            l := line.new(x, price, bar_index, price, extend = extend.none, width = 2, style = line.style_solid)
+        
+        line.set_y1(l, nz(price, close[1]))
+        line.set_y2(l, nz(price, close[1]))
+        line.set_x1(l, x)
+        line.set_x2(l, max(bar_index, 0))
+        line.set_color(l, na(price) ? #00000000 : col)
+        
+[vD, stdevD] = getVWAP(newSession)
+
+v = vD
+s = stdevD
+vPlot = plot(v, title = "VWAP - Selected (transparent, not used)", color = #00000000)
+s1up = plot(showStd ? v + std1 * s : na, title = "VWAP - STDEV 1", color = #00FFFFDD, linewidth = 1)
+s1dn = plot(showStd ? v - std1 * s : na, title = "VWAP - STDEV 1", color = #00FFFFDD, linewidth = 1)
+s2up = plot(showStd ? v + std2 * s : na, title = "VWAP - STDEV 2", color = #FF00FFDD, linewidth = 1)
+s2dn = plot(showStd ? v - std2 * s : na, title = "VWAP - STDEV 2", color = #FF00FFDD, linewidth = 1)
+s3up = plot(showStd ? v + std3 * s : na, title = "VWAP - STDEV 3", color = #CCCCCCDD, linewidth = 1)
+s3dn = plot(showStd ? v - std3 * s : na, title = "VWAP - STDEV 3", color = #CCCCCCDD, linewidth = 1)
+
+
+bearreject(level) => open<level and high>level and close<level
+bullreject(level) => open>level and low<level and close>level
+vblrej = bullreject(v)
+vbrrej = bearreject(v)
+alertcondition(vblrej, title="Bullish Rejection VWAP", message="Bullish Rejection VWAP, {{ticker}} - {{interval}}")
+alertcondition(vbrrej, title= 'Bearish Rejection VWAP', message="Bearish Rejection VWAP, {{ticker}} - {{interval}}")
+
+
+dColor = #008000FF
+_opacity1 = 50
+_opacity2 = 100
+opacity = floor(_opacity1 / 10) * 10
+opacity2 = floor(_opacity2 / 10) * 10
+dColorLine = opacity2 == 100 ? color.new(dColor, 0) : opacity2 == 90 ? color.new(dColor, 10) : opacity2 == 80 ? color.new(dColor, 20) : opacity2 == 70 ? color.new(dColor, 30) : opacity2 == 60 ? color.new(dColor, 40) : opacity2 == 50 ? color.new(dColor, 50) : opacity2 == 40 ? color.new(dColor, 60) : opacity2 == 30 ? color.new(dColor, 70) : opacity2 == 20 ? color.new(dColor, 80) : opacity2 == 10 ? color.new(dColor, 90) : color.new(dColor, 100)
+plot(vD, title = "VWAP - Daily", color = #FF5252, linewidth = 2, transp=0)
