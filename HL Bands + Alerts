@@ -1,0 +1,306 @@
+//@version=4
+
+study("H/L Bands",overlay=true, max_bars_back=4999)
+
+//Resolution settings
+res1 = input('D',title="Timeframe 1" )
+res2 = input('3D',title="Timeframe 2" )
+res3 = input('W',title="Timeframe 3" )
+res4 = input('M',title="Timeframe 4" )
+
+
+//Swing High
+n=1
+up = high[n+1]<high[n] and high[n]>high
+uphigh = valuewhen(up, high[1], 0)
+up65 = valuewhen(up, (high[1]-(high[1]-low[1])*0.375), 0)
+upmid = valuewhen(up, hl2[1], 0)
+up35 = valuewhen(up, (low[1]+(high[1]-low[1])*0.375), 0)
+
+//Swing Low
+down = low[n+1]>low[n] and low[n]<low
+downlow = valuewhen(down, low[1], 0)
+down65 = valuewhen(down, (high[1]-(high[1]-low[1])*0.375), 0)
+downmid = valuewhen(down, hl2[1], 0)
+down35 = valuewhen(down, (low[1]+(high[1]-low[1])*0.375), 0)
+
+//Main resolution data
+res1up = security(syminfo.tickerid, res1, up, barmerge.gaps_off, barmerge.lookahead_on)
+res1uphigh = security(syminfo.tickerid, res1, uphigh, barmerge.gaps_off, barmerge.lookahead_on)
+res1up65 = security(syminfo.tickerid, res1, up65, barmerge.gaps_off, barmerge.lookahead_on)
+res1upmid = security(syminfo.tickerid, res1, upmid, barmerge.gaps_off, barmerge.lookahead_on)
+res1up35 = security(syminfo.tickerid, res1, up35, barmerge.gaps_off, barmerge.lookahead_on)
+
+res1down = security(syminfo.tickerid, res1, down, barmerge.gaps_off, barmerge.lookahead_on)
+res1downlow = security(syminfo.tickerid, res1, downlow, barmerge.gaps_off, barmerge.lookahead_on)
+res1down65 = security(syminfo.tickerid, res1, down65, barmerge.gaps_off, barmerge.lookahead_on)
+res1downmid = security(syminfo.tickerid, res1, downmid, barmerge.gaps_off, barmerge.lookahead_on)
+res1down35 = security(syminfo.tickerid, res1, down35, barmerge.gaps_off, barmerge.lookahead_on)
+
+//res2 MTF data
+res2up = security(syminfo.tickerid, res2, up)
+res2uphigh = security(syminfo.tickerid, res2, uphigh)
+res2up65 = security(syminfo.tickerid, res2, up65)
+res2upmid = security(syminfo.tickerid, res2, upmid)
+res2up35 = security(syminfo.tickerid, res2, up35)
+
+res2down = security(syminfo.tickerid, res2, down)
+res2downlow = security(syminfo.tickerid, res2, downlow)
+res2down65 = security(syminfo.tickerid, res2, down65)
+res2downmid = security(syminfo.tickerid, res2, downmid)
+res2down35 = security(syminfo.tickerid, res2, down35)
+
+//res3 MTF data
+res3up = security(syminfo.tickerid, res3, up, barmerge.gaps_off, barmerge.lookahead_on)
+res3uphigh = security(syminfo.tickerid, res3, uphigh, barmerge.gaps_off, barmerge.lookahead_on)
+res3up65 = security(syminfo.tickerid, res3, up65, barmerge.gaps_off, barmerge.lookahead_on)
+res3upmid = security(syminfo.tickerid, res3, upmid, barmerge.gaps_off, barmerge.lookahead_on)
+res3up35 = security(syminfo.tickerid, res3, up35, barmerge.gaps_off, barmerge.lookahead_on)
+
+res3down = security(syminfo.tickerid, res3, down, barmerge.gaps_off, barmerge.lookahead_on)
+res3downlow = security(syminfo.tickerid, res3, downlow, barmerge.gaps_off, barmerge.lookahead_on)
+res3down65 = security(syminfo.tickerid, res3, down65, barmerge.gaps_off, barmerge.lookahead_on)
+res3downmid = security(syminfo.tickerid, res3, downmid, barmerge.gaps_off, barmerge.lookahead_on)
+res3down35 = security(syminfo.tickerid, res3, down35, barmerge.gaps_off, barmerge.lookahead_on)
+//res4 MTF data
+res4up = security(syminfo.tickerid, res4, up, barmerge.gaps_off, barmerge.lookahead_on)
+res4uphigh = security(syminfo.tickerid, res4, uphigh, barmerge.gaps_off, barmerge.lookahead_on)
+res4up65 = security(syminfo.tickerid, res4, up65, barmerge.gaps_off, barmerge.lookahead_on)
+res4upmid = security(syminfo.tickerid, res4, upmid, barmerge.gaps_off, barmerge.lookahead_on)
+res4up35 = security(syminfo.tickerid, res4, up35, barmerge.gaps_off, barmerge.lookahead_on)
+
+res4down = security(syminfo.tickerid, res4, down, barmerge.gaps_off, barmerge.lookahead_on)
+res4downlow = security(syminfo.tickerid, res4, downlow, barmerge.gaps_off, barmerge.lookahead_on)
+res4down65 = security(syminfo.tickerid, res4, down65, barmerge.gaps_off, barmerge.lookahead_on)
+res4downmid = security(syminfo.tickerid, res4, downmid, barmerge.gaps_off, barmerge.lookahead_on)
+res4down35 = security(syminfo.tickerid, res4, down35, barmerge.gaps_off, barmerge.lookahead_on)
+
+
+//SMA functions
+Sma(src,p) => a = cum(src), (a - a[max(p,0)])/max(p,0)
+upSmahigh = Sma(high, (barssince(up)+(n+1)))
+upSmamid = Sma(upmid, (barssince(up)+(n+1)))
+upSmalow = Sma(low, (barssince(up)+(n+1)))
+downSmahigh = Sma(high, (barssince(down)+(n+1)))
+downSmamid = Sma(downmid, (barssince(down)+(n+1)))
+downSmalow = Sma(low, (barssince(down)+(n+1)))
+
+res1upSmahigh= security(syminfo.tickerid, res1, upSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
+res1upSmamid= security(syminfo.tickerid, res1, upSmamid, barmerge.gaps_off, barmerge.lookahead_on)
+res1upSmalow= security(syminfo.tickerid, res1, upSmalow, barmerge.gaps_off, barmerge.lookahead_on)
+res1downSmahigh= security(syminfo.tickerid, res1, downSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
+res1downSmamid= security(syminfo.tickerid, res1, downSmamid, barmerge.gaps_off, barmerge.lookahead_on)
+res1downSmalow= security(syminfo.tickerid, res1, downSmalow, barmerge.gaps_off, barmerge.lookahead_on)
+
+res2upSmahigh= security(syminfo.tickerid, res2, upSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
+res2upSmamid= security(syminfo.tickerid, res2, upSmamid, barmerge.gaps_off, barmerge.lookahead_on)
+res2upSmalow= security(syminfo.tickerid, res2, upSmalow, barmerge.gaps_off, barmerge.lookahead_on)
+res2downSmahigh= security(syminfo.tickerid, res2, downSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
+res2downSmamid= security(syminfo.tickerid, res2, downSmamid, barmerge.gaps_off, barmerge.lookahead_on)
+res2downSmalow= security(syminfo.tickerid, res2, downSmalow, barmerge.gaps_off, barmerge.lookahead_on)
+
+res3upSmahigh= security(syminfo.tickerid, res3, upSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
+res3upSmamid= security(syminfo.tickerid, res3, upSmamid, barmerge.gaps_off, barmerge.lookahead_on)
+res3upSmalow= security(syminfo.tickerid, res3, upSmalow, barmerge.gaps_off, barmerge.lookahead_on)
+res3downSmahigh= security(syminfo.tickerid, res3, downSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
+res3downSmamid= security(syminfo.tickerid, res3, downSmamid, barmerge.gaps_off, barmerge.lookahead_on)
+res3downSmalow= security(syminfo.tickerid, res3, downSmalow, barmerge.gaps_off, barmerge.lookahead_on)
+
+res4upSmahigh= security(syminfo.tickerid, res4, upSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
+res4upSmamid= security(syminfo.tickerid, res4, upSmamid, barmerge.gaps_off, barmerge.lookahead_on)
+res4upSmalow= security(syminfo.tickerid, res4, upSmalow, barmerge.gaps_off, barmerge.lookahead_on)
+res4downSmahigh= security(syminfo.tickerid, res4, downSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
+res4downSmamid= security(syminfo.tickerid, res4, downSmamid, barmerge.gaps_off, barmerge.lookahead_on)
+res4downSmalow= security(syminfo.tickerid, res4, downSmalow, barmerge.gaps_off, barmerge.lookahead_on)
+
+
+
+
+
+//Bands/Cloud calculations
+midbandres1 = (res1upSmahigh+res1downSmalow)*0.5
+midbandres2 = (res2upSmahigh+res2downSmalow)*0.5
+midbandres3 = (res3upSmahigh+res3downSmalow)*0.5
+midbandres4 = (res4upSmahigh+res4downSmalow)*0.5
+
+
+
+//HL bands switch res 1
+//upper band
+condATrigger1 = rising(res1upSmahigh, 1)
+condBTrigger1 = falling(res1upSmahigh, 1)
+condA1 = false
+condB1 = false
+var LastCondWasA1 = false
+if condATrigger1 and not LastCondWasA1
+    condA1 := true
+    LastCondWasA1 := true
+else
+    if condBTrigger1 and LastCondWasA1
+        condB1 := true
+        LastCondWasA1 := false
+//lowerband
+condCTrigger1 = rising(res1downSmalow, 1)
+condDTrigger1 = falling(res1downSmalow, 1)
+condC1 = false
+condD1 = false
+var LastCondWasC1 = false
+if condCTrigger1 and not LastCondWasC1
+    condC1 := true
+    LastCondWasC1 := true
+else
+    if condDTrigger1 and LastCondWasC1
+        condD1 := true
+        LastCondWasC1 := false
+//----------------------------------------------
+//HL bands switch res 2
+//upper band
+condATrigger2 = rising(res2upSmahigh, 1)
+condBTrigger2 = falling(res2upSmahigh, 1)
+condA2 = false
+condB2 = false
+var LastCondWasA2 = false
+if condATrigger2 and not LastCondWasA2
+    condA2 := true
+    LastCondWasA2 := true
+else
+    if condBTrigger2 and LastCondWasA2
+        condB2 := true
+        LastCondWasA2 := false
+//lowerband
+condCTrigger2 = rising(res2downSmalow, 1)
+condDTrigger2 = falling(res2downSmalow, 1)
+condC2 = false
+condD2 = false
+var LastCondWasC2 = false
+if condCTrigger2 and not LastCondWasC2
+    condC2 := true
+    LastCondWasC2 := true
+else
+    if condDTrigger2 and LastCondWasC2
+        condD2 := true
+        LastCondWasC2 := false
+
+//HL bands switch res 3
+//upper band
+condATrigger3 = rising(res3upSmahigh, 1)
+condBTrigger3 = falling(res3upSmahigh, 1)
+condA3 = false
+condB3 = false
+var LastCondWasA3 = false
+if condATrigger3 and not LastCondWasA3
+    condA3 := true
+    LastCondWasA3 := true
+else
+    if condBTrigger3 and LastCondWasA3
+        condB3 := true
+        LastCondWasA3 := false
+//lowerband
+condCTrigger3 = rising(res3downSmalow, 1)
+condDTrigger3 = falling(res3downSmalow, 1)
+condC3 = false
+condD3 = false
+var LastCondWasC3 = false
+if condCTrigger3 and not LastCondWasC3
+    condC3 := true
+    LastCondWasC3 := true
+else
+    if condDTrigger3 and LastCondWasC3
+        condD3 := true
+        LastCondWasC3 := false
+
+//HL bands switch res 4
+//upper band
+condATrigger4 = rising(res4upSmahigh, 1)
+condBTrigger4 = falling(res4upSmahigh, 1)
+condA4 = false
+condB4 = false
+var LastCondWasA4 = false
+if condATrigger4 and not LastCondWasA4
+    condA4 := true
+    LastCondWasA4 := true
+else
+    if condBTrigger4 and LastCondWasA4
+        condB4 := true
+        LastCondWasA4 := false
+//lowerband
+condCTrigger4 = rising(res4downSmalow, 1)
+condDTrigger4 = falling(res4downSmalow, 1)
+condC4 = false
+condD4 = false
+var LastCondWasC4 = false
+if condCTrigger4 and not LastCondWasC4
+    condC4 := true
+    LastCondWasC4 := true
+else
+    if condDTrigger4 and LastCondWasC4
+        condD4 := true
+        LastCondWasC4 := false
+
+
+
+bullres1up = LastCondWasA1
+bullres1down = LastCondWasC1
+bullres2up = LastCondWasA2
+bullres2down = LastCondWasC2
+bullres3up = LastCondWasA3
+bullres3down = LastCondWasC3
+bullres4up = LastCondWasA4
+bullres4down = LastCondWasC4
+
+bearres1up = not LastCondWasA1
+bearres1down = not LastCondWasC1
+bearres2up = not LastCondWasA2
+bearres2down = not LastCondWasC2
+bearres3up = not LastCondWasA3
+bearres3down = not LastCondWasC3
+bearres4up = not LastCondWasA4
+bearres4down = not LastCondWasC4
+
+
+plotres1 = input(true, title="Timeframe 1")
+plotres2 = input(false, title="Timeframe 2")
+plotres3 = input(false, title="Timeframe 3")
+plotres4 = input(false, title="Timeframe 4")
+
+//Enter Cloud upper
+res1upper = crossunder(close, res1upSmahigh)
+res2upper = crossunder(close, res2upSmahigh)
+res3upper = crossunder(close, res3upSmahigh)
+res4upper = crossunder(close, res4upSmahigh)
+//Exit Cloud
+res1upperexit = crossover(close, res1upSmahigh)
+res2upperexit = crossover(close, res2upSmahigh)
+res3upperexit = crossover(close, res3upSmahigh)
+res4upperexit = crossover(close, res4upSmahigh)
+
+//Enter cloud lower
+res1lower = crossover(close, res1downSmalow)
+res2lower = crossover(close, res2downSmalow)
+res3lower = crossover(close, res3downSmalow)
+res4lower = crossover(close, res4downSmalow)
+//Exit cloud
+res1lowerexit = crossunder(close, res1downSmalow)
+res2lowerexit = crossunder(close, res2downSmalow)
+res3lowerexit = crossunder(close, res3downSmalow)
+res4lowerexit = crossunder(close, res4downSmalow)
+
+alertcondition(res1upper, message="Price back inside upper band", title="Enter cloud - H")
+alertcondition(res1lower, message="Price back inside lower band", title = "Enter cloud - L")
+alertcondition(res1upperexit, message="Price exited cloud above upper band", title="Exit cloud - H")
+alertcondition(res1lowerexit, message="Price exited cloud below lower band", title="Exit cloud - L")
+//Marker plots and MTF trend lines
+res1bandup = plot(plotres1?res1upSmahigh:na, color=bullres1up?color.aqua:color.red, title="TF 1", linewidth=1)
+res2bandup = plot(plotres2?res2upSmahigh:na, color=bullres2up?color.blue:color.red, title="TF 2", linewidth=1)
+res3bandup = plot(plotres3?res3upSmahigh:na, color=bullres3up?color.navy:color.red, title="TF 3", linewidth=1)
+res4bandup = plot(plotres4?res4upSmahigh:na, color=bullres4up?color.black:color.red, title="TF 4", linewidth=1)
+
+res1banddown = plot(plotres1?res1downSmalow:na, color=bullres1down?color.aqua:color.red, title="TF 1", linewidth=1)
+res2banddown = plot(plotres2?res2downSmalow:na, color=bullres2down?color.blue:color.red, title="TF 2", linewidth=1)
+res3banddown = plot(plotres3?res3downSmalow:na, color=bullres3down?color.navy:color.red, title="TF 3", linewidth=1)
+res4banddown = plot(plotres4?res4downSmalow:na, color=bullres4down?color.black:color.red, title="TF 4", linewidth=1)
+
+fill(res1bandup, res1banddown, color=color.aqua, transp=90)
+fill(res2bandup, res2banddown, color=color.blue, transp=90)
+fill(res3bandup, res3banddown, color=color.navy, transp=90)
+fill(res4bandup, res4banddown, color=color.black, transp=90)
