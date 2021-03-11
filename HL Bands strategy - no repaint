@@ -1,0 +1,311 @@
+//@version=4
+// FUNCTIONS required
+f_highest_sr(_source, _length) =>
+    float _return = _source
+    for _i = 0 to max(0, min(_length, bar_index)-1)
+        _return := max(_source[_i], _return)
+    _return
+    
+f_lowest_sr(_source, _length) => 
+    float _return = _source
+    for _i = 0 to max(0, min(_length, bar_index)-1)
+        _return := min(_source[_i], _return)
+    _return
+
+f_barssince(_cond, _count) => _barssince=bar_index-valuewhen(_cond, bar_index, _count)
+f_security(_sym, _res, _src, _rep) => security(_sym, _res, _src[not _rep and barstate.isrealtime ? 1 : 0])[_rep or barstate.isrealtime ? 0 : 1]
+//@version=4
+strategy(title="HL bands strat 12h - 10/03/2021", shorttitle="HL bands strat", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=100, commission_value=0.15)
+
+FromMonth = input(defval=1, title="From Month", minval=1, maxval=12)
+FromDay = input(defval=1, title="From Day", minval=1, maxval=31)
+FromYear = input(defval=2017, title="From Year", minval=2000)
+ToMonth = input(defval=1, title="To Month", minval=1, maxval=12)
+ToDay = input(defval=1, title="To Day", minval=1, maxval=31)
+ToYear = input(defval=9999, title="To Year", minval=2017)
+
+
+//Resolution settings
+res1 = input('2W',title="Band TF" )
+
+
+
+//Swing High
+n=1
+up = high[n+1]<high[n] and high[n]>high
+uphigh = valuewhen(up, high[1], 0)
+up65 = valuewhen(up, (high[1]-(high[1]-low[1])*0.375), 0)
+upmid = valuewhen(up, hl2[1], 0)
+up35 = valuewhen(up, (low[1]+(high[1]-low[1])*0.375), 0)
+
+//Swing Low
+down = low[n+1]>low[n] and low[n]<low
+downlow = valuewhen(down, low[1], 0)
+down65 = valuewhen(down, (high[1]-(high[1]-low[1])*0.375), 0)
+downmid = valuewhen(down, hl2[1], 0)
+down35 = valuewhen(down, (low[1]+(high[1]-low[1])*0.375), 0)
+
+//Main resolution data
+res1up = f_security(syminfo.tickerid, res1, up, false)
+res1uphigh = f_security(syminfo.tickerid, res1, uphigh, false)
+res1up65 = f_security(syminfo.tickerid, res1, up65, false)
+res1upmid = f_security(syminfo.tickerid, res1, upmid, false)
+res1up35 = f_security(syminfo.tickerid, res1, up35, false)
+
+res1down = f_security(syminfo.tickerid, res1, down, false)
+res1downlow = f_security(syminfo.tickerid, res1, downlow, false)
+res1down65 = f_security(syminfo.tickerid, res1, down65, false)
+res1downmid = f_security(syminfo.tickerid, res1, downmid, false)
+res1down35 = f_security(syminfo.tickerid, res1, down35, false)
+
+
+
+
+//SMA functions
+Sma(src,p) => a = cum(src), (a - a[max(p,0)])/max(p,0)
+upSmahigh = Sma(high, (barssince(up)+(n+1)))
+upSmamid = Sma(upmid, (barssince(up)+(n+1)))
+upSmalow = Sma(low, (barssince(up)+(n+1)))
+downSmahigh = Sma(high, (barssince(down)+(n+1)))
+downSmamid = Sma(downmid, (barssince(down)+(n+1)))
+downSmalow = Sma(low, (barssince(down)+(n+1)))
+
+res1upSmahigh= f_security(syminfo.tickerid, res1, upSmahigh, false)
+res1upSmamid= f_security(syminfo.tickerid, res1, upSmamid, false)
+res1upSmalow= f_security(syminfo.tickerid, res1, upSmalow, false)
+res1downSmahigh= f_security(syminfo.tickerid, res1, downSmahigh, false)
+res1downSmamid= f_security(syminfo.tickerid, res1, downSmamid, false)
+res1downSmalow= f_security(syminfo.tickerid, res1, downSmalow, false)
+
+
+
+//Bands/Cloud calculations
+midbandres1 = (res1upSmahigh+res1downSmalow)*0.5
+
+
+
+
+//HL bands switch res 1
+//upper band
+condATrigger1 = rising(res1upSmahigh, 1)
+condBTrigger1 = falling(res1upSmahigh, 1)
+condA1 = false
+condB1 = false
+var LastCondWasA1 = false
+if condATrigger1 and not LastCondWasA1
+    condA1 := true
+    LastCondWasA1 := true
+else
+    if condBTrigger1 and LastCondWasA1
+        condB1 := true
+        LastCondWasA1 := false
+//lowerband
+condCTrigger1 = rising(res1downSmalow, 1)
+condDTrigger1 = falling(res1downSmalow, 1)
+condC1 = false
+condD1 = false
+var LastCondWasC1 = false
+if condCTrigger1 and not LastCondWasC1
+    condC1 := true
+    LastCondWasC1 := true
+else
+    if condDTrigger1 and LastCondWasC1
+        condD1 := true
+        LastCondWasC1 := false
+
+bullres1up = LastCondWasA1
+bullres1down = LastCondWasC1
+
+
+bearres1up = not LastCondWasA1
+bearres1down = not LastCondWasC1
+
+
+
+plotres1 = input(true, title="Show bands")
+
+
+//Enter Cloud upper
+res1upper = crossunder(close, res1upSmahigh)
+
+//Exit Cloud
+res1upperexit = crossover(close, res1upSmahigh)
+
+
+//Enter cloud lower
+res1lower = crossover(close, res1downSmalow)
+
+//Exit cloud
+res1lowerexit = crossunder(close, res1downSmalow)
+
+
+
+res1bandup = plot(plotres1?res1upSmahigh:na, color=bullres1up?color.aqua:color.red, title="TF 1", linewidth=1)
+
+
+res1banddown = plot(plotres1?res1downSmalow:na, color=bullres1down?color.aqua:color.red, title="TF 1", linewidth=1)
+
+fill(res1bandup, res1banddown, color=color.aqua, transp=90)
+
+
+
+numbars=1
+
+lookback = 48
+
+
+//Break conditions
+
+
+downlow2 = valuewhen(down, low[numbars], 1)
+downlow3 = valuewhen(down, low[numbars], 2)
+downlow4 = valuewhen(down, low[numbars], 3)
+lowdownlow = lowest(downlow, lookback)
+bearbreak = (open>downlow and close<downlow and close<low[1])
+bearbreak2 =(open>lowdownlow and close<lowdownlow and close<low[1])
+
+
+//-------------------
+
+
+uphigh2 = valuewhen(up, high[numbars], 1)
+uphigh3 = valuewhen(up, high[numbars], 2)
+uphigh4 = valuewhen(up, high[numbars], 3)
+highuphigh =highest(uphigh, lookback)
+bullbreak = (open<uphigh and close>uphigh and close>high[1])
+bullbreak2 = (open<highuphigh and close>highuphigh and close>high[1])
+
+downlow_(num)=> valuewhen(down, low[numbars], num)
+
+downlow1 = downlow_(0)
+downlow1_2 = min(downlow_(0), downlow_(1))
+downlow1_3 = min(downlow_(0), downlow_(1), downlow_(2))
+downlow1_4 = min(downlow_(0), downlow_(1), downlow_(2), downlow_(3))
+downlow1_5 = min(downlow_(0), downlow_(1), downlow_(2), downlow_(3), downlow_(4))
+downlow1_6 = min(downlow_(0), downlow_(1), downlow_(2), downlow_(3), downlow_(4), downlow_(5))
+
+
+bearbreak_(lvl) => (open>lvl and close<lvl and close<low[1])
+bear1 = bearbreak_(downlow1)
+bear2 = bearbreak_(downlow1_2)
+bear3 = bearbreak_(downlow1_3)
+bear4 = bearbreak_(downlow1_4)
+bear5 = bearbreak_(downlow1_5)
+bear6 = bearbreak_(downlow1_6)
+bearcol = (bear1 or bear2 or bear3 or bear4 or bear5 or bear6) 
+
+uphigh_(num)=> valuewhen(up, high[numbars], num)
+
+uphigh1 = uphigh_(0)
+uphigh1_2 = max(uphigh_(0), uphigh_(1))
+uphigh1_3 = max(uphigh_(0), uphigh_(1), uphigh_(2))
+uphigh1_4 = max(uphigh_(0), uphigh_(1), uphigh_(2), uphigh_(3))
+uphigh1_5 = max(uphigh_(0), uphigh_(1), uphigh_(2), uphigh_(3), uphigh_(4))
+uphigh1_6 = max(uphigh_(0), uphigh_(1), uphigh_(2), uphigh_(3), uphigh_(4), uphigh_(5))
+
+highestup(num) => f_highest_sr(close, f_barssince(up, num))
+
+bullbreak_(lvl) => (open<lvl and close>lvl and close>high[1])
+bull1 = bullbreak_(uphigh1)
+bull2 = bullbreak_(uphigh1_2) 
+bull3 = bullbreak_(uphigh1_3)
+bull4 = bullbreak_(uphigh1_4)
+bull5 = bullbreak_(uphigh1_5)
+bull6 = bullbreak_(uphigh1_6)
+bullcol = bull1 or bull2 or bull3 or bull4 or bull5 or bull6
+
+
+bull = bullbreak or bullbreak2 or bullcol
+bear = bearbreak or bearbreak2 or bearcol
+
+
+
+
+start = timestamp(FromYear, FromMonth, FromDay, 00, 00)
+finish = timestamp(ToYear, ToMonth, ToDay, 23, 59)
+testPeriod() =>
+    time >= start and time <= finish ? true : false
+
+
+
+
+//HA plot
+handleHA = heikinashi(syminfo.tickerid)
+openHA = security(handleHA, timeframe.period, open)
+highHA = security(handleHA, timeframe.period, high)
+lowHA = security(handleHA, timeframe.period, low)
+closeHA = security(handleHA, timeframe.period, close)
+src = openHA
+
+/////trendmaster
+Factor = input(16, minval=1, maxval=140)
+Pd = input(1, minval=1, maxval=140)
+Up = closeHA - Factor * atr(Pd)
+Dn = closeHA + Factor * atr(Pd)
+TrendUp = float(na)
+TrendUp := closeHA[1] > TrendUp[1] ? max(Up, TrendUp[1]) : Up
+TrendDown = float(na)
+TrendDown := closeHA[1] < TrendDown[1] ? min(Dn, TrendDown[1]) : Dn
+Trend = int(na)
+Trend := closeHA > TrendDown[1] ? 1 : closeHA < TrendUp[1] ? -1 : nz(Trend[1], 1)
+Tsl = Trend == 1 ? TrendUp : TrendDown
+linecolor = Trend == 1 ? color.green : color.red
+//plot(Tsl, color=linecolor, style=plot.style_line, linewidth=2, title="SuperTrend")
+
+//Stop runs
+lookbacklength = input(50, minval=1, step=5, title="stop run lookback length")
+
+
+// Put your long and short rules here
+longCondition = bull and close>res1upSmahigh and close>res1downSmalow
+//
+shortCondition = bear and close<res1downSmalow and close<res1upSmahigh
+
+
+
+
+longClose = res1upper
+shortClose = res1lower
+
+
+
+//SL
+
+stopLow = float(na)
+stopHigh = float(na)
+if longCondition and strategy.position_size <= 0 or shortCondition and strategy.position_size >= 0
+    stopLow := low
+    stopHigh := high
+    stopHigh
+else
+    if strategy.position_size == 0
+        stopLow := na
+        stopHigh := na
+        stopHigh
+    else
+        stopLow := stopLow[1]
+        stopHigh := stopHigh[1]
+        stopHigh
+
+dynStop = input(true, title='Dynamic stop', type=input.bool)
+if dynStop and not(longCondition or shortCondition or longClose or shortClose)
+    strategy.exit("Dynamic Stop Loss (Long)", "Long", stop=stopLow)
+    strategy.exit("Dynamic Stop Loss (Short)", "Short", stop=stopHigh)
+else
+    strategy.cancel("Dynamic Stop Loss (Long)")
+    strategy.cancel("Dynamic Stop Loss (Short)")
+
+    
+//Position size calculator 
+accountrisk= input(1, title="Account % per trade ", step=0.1)
+sizelong= strategy.equity*accountrisk/100/abs(close-low)
+sizeshort= strategy.equity*accountrisk/100/abs(high-close)
+
+
+
+if testPeriod()
+    strategy.entry("Long", 1,  when=longCondition, qty=sizelong)
+    strategy.entry("Short", 0, when=shortCondition, qty=sizeshort)
+    strategy.close("Long", when=longClose)
+    strategy.close("Short", when=shortClose)
+
