@@ -1,4 +1,4 @@
-//@version=4
+//@version=4 
 strategy(title="Trend change strat NR", shorttitle="trend change strat NR", overlay=false, default_qty_type=strategy.percent_of_equity, default_qty_value=100, commission_value=0.15)
 f_security(_sym, _res, _src, _rep) => security(_sym, _res, _src[not _rep and barstate.isrealtime ? 1 : 0])[_rep or barstate.isrealtime ? 0 : 1]
 FromMonth = input(defval = 1, title = "From Month", minval = 1, maxval = 12)
