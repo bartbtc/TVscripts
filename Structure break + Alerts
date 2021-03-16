@@ -1,5 +1,5 @@
 //@version=4
-// FUNCTIONS required
+// FUNCTIONS required 
 f_highest_sr(_source, _length) =>
     float _return = _source
     for _i = 0 to max(0, min(_length, bar_index)-1)
