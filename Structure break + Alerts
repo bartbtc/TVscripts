@@ -13,9 +13,9 @@ f_lowest_sr(_source, _length) =>
     _return
 
 f_barssince(_cond, _count) => _barssince=bar_index-valuewhen(_cond, bar_index, _count)
-
+f_security(_sym, _res, _src, _rep) => security(_sym, _res, _src[not _rep and barstate.isrealtime ? 1 : 0])[_rep or barstate.isrealtime ? 0 : 1]
 //---------------options
-study("Structure break",overlay=true)
+study("Structure break NR",overlay=true)
 res1 = input('D')
 n=1
 numbars=1
@@ -99,13 +99,13 @@ bearbmid = valuewhen(bearbreak or bearbreak2 or bearcol, hl2, 0)
 bearblow = valuewhen(bearbreak or bearbreak2 or bearcol, low, 0)
 
 
-res1bullbhigh = security(syminfo.tickerid, res1, bullbhigh, barmerge.gaps_off, barmerge.lookahead_on)
-res1bullbmid = security(syminfo.tickerid, res1, bullbmid, barmerge.gaps_off, barmerge.lookahead_on)
-res1bullblow = security(syminfo.tickerid, res1, bullblow, barmerge.gaps_off, barmerge.lookahead_on)
+res1bullbhigh = f_security(syminfo.tickerid, res1, bullbhigh, false)
+res1bullbmid = f_security(syminfo.tickerid, res1, bullbmid, false)
+res1bullblow = f_security(syminfo.tickerid, res1, bullblow, false)
 
-res1bearbhigh = security(syminfo.tickerid, res1, bearbhigh, barmerge.gaps_off, barmerge.lookahead_on)
-res1bearblow = security(syminfo.tickerid, res1, bearblow, barmerge.gaps_off, barmerge.lookahead_on)
-res1bearbmid = security(syminfo.tickerid, res1, bearbmid, barmerge.gaps_off, barmerge.lookahead_on)
+res1bearbhigh = f_security(syminfo.tickerid, res1, bearbhigh, false)
+res1bearblow = f_security(syminfo.tickerid, res1, bearblow, false)
+res1bearbmid = f_security(syminfo.tickerid, res1, bearbmid, false)
 
 bull = bullbreak or bullbreak2 or bullcol
 bear = bearbreak or bearbreak2 or bearcol
