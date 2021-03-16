@@ -1,13 +1,12 @@
 //@version=4
-
-study("Deviations (Step+Bands) HTF",overlay=false, max_bars_back=4999)
-
+f_security(_sym, _res, _src, _rep) => security(_sym, _res, _src[not _rep and barstate.isrealtime ? 1 : 0])[_rep or barstate.isrealtime ? 0 : 1]
+study("Trend shifts HTF - NR",overlay=true, max_bars_back=4999)
 
 //Resolution settings
-res1 = input('3D',title="Timeframe 1" )
-res2 = input('W',title="Timeframe 2" )
-res3 = input('M',title="Timeframe 3" )
-res4 = input('2M',title="Timeframe 4" )
+res1 = input('D',title="Timeframe 1" )
+res2 = input('3D',title="Timeframe 2" )
+res3 = input('W',title="Timeframe 3" )
+res4 = input('M',title="Timeframe 4" )
 
 
 //Swing High
@@ -26,55 +25,55 @@ downmid = valuewhen(down, hl2[1], 0)
 down35 = valuewhen(down, (low[1]+(high[1]-low[1])*0.375), 0)
 
 //Main resolution data
-res1up = security(syminfo.tickerid, res1, up, barmerge.gaps_off, barmerge.lookahead_on)
-res1uphigh = security(syminfo.tickerid, res1, uphigh, barmerge.gaps_off, barmerge.lookahead_on)
-res1up65 = security(syminfo.tickerid, res1, up65, barmerge.gaps_off, barmerge.lookahead_on)
-res1upmid = security(syminfo.tickerid, res1, upmid, barmerge.gaps_off, barmerge.lookahead_on)
-res1up35 = security(syminfo.tickerid, res1, up35, barmerge.gaps_off, barmerge.lookahead_on)
+Dup = f_security(syminfo.tickerid, res1, up, false)
+Duphigh = f_security(syminfo.tickerid, res1, uphigh, false)
+Dup65 = f_security(syminfo.tickerid, res1, up65, false)
+Dupmid = f_security(syminfo.tickerid, res1, upmid, false)
+Dup35 = f_security(syminfo.tickerid, res1, up35, false)
 
-res1down = security(syminfo.tickerid, res1, down, barmerge.gaps_off, barmerge.lookahead_on)
-res1downlow = security(syminfo.tickerid, res1, downlow, barmerge.gaps_off, barmerge.lookahead_on)
-res1down65 = security(syminfo.tickerid, res1, down65, barmerge.gaps_off, barmerge.lookahead_on)
-res1downmid = security(syminfo.tickerid, res1, downmid, barmerge.gaps_off, barmerge.lookahead_on)
-res1down35 = security(syminfo.tickerid, res1, down35, barmerge.gaps_off, barmerge.lookahead_on)
+Ddown = f_security(syminfo.tickerid, res1, down, false)
+Ddownlow = f_security(syminfo.tickerid, res1, downlow, false)
+Ddown65 = f_security(syminfo.tickerid, res1, down65, false)
+Ddownmid = f_security(syminfo.tickerid, res1, downmid, false)
+Ddown35 = f_security(syminfo.tickerid, res1, down35, false)
 
 //res2 MTF data
-res2up = security(syminfo.tickerid, res2, up)
-res2uphigh = security(syminfo.tickerid, res2, uphigh)
-res2up65 = security(syminfo.tickerid, res2, up65)
-res2upmid = security(syminfo.tickerid, res2, upmid)
-res2up35 = security(syminfo.tickerid, res2, up35)
+res2up = f_security(syminfo.tickerid, res2, up, false)
+res2uphigh = f_security(syminfo.tickerid, res2, uphigh, false)
+res2up65 = f_security(syminfo.tickerid, res2, up65, false)
+res2upmid = f_security(syminfo.tickerid, res2, upmid, false)
+res2up35 = f_security(syminfo.tickerid, res2, up35, false)
 
-res2down = security(syminfo.tickerid, res2, down)
-res2downlow = security(syminfo.tickerid, res2, downlow)
-res2down65 = security(syminfo.tickerid, res2, down65)
-res2downmid = security(syminfo.tickerid, res2, downmid)
-res2down35 = security(syminfo.tickerid, res2, down35)
+res2down = f_security(syminfo.tickerid, res2, down, false)
+res2downlow = f_security(syminfo.tickerid, res2, downlow, false)
+res2down65 = f_security(syminfo.tickerid, res2, down65, false)
+res2downmid = f_security(syminfo.tickerid, res2, downmid, false)
+res2down35 = f_security(syminfo.tickerid, res2, down35, false)
 
 //res3 MTF data
-res3up = security(syminfo.tickerid, res3, up, barmerge.gaps_off, barmerge.lookahead_on)
-res3uphigh = security(syminfo.tickerid, res3, uphigh, barmerge.gaps_off, barmerge.lookahead_on)
-res3up65 = security(syminfo.tickerid, res3, up65, barmerge.gaps_off, barmerge.lookahead_on)
-res3upmid = security(syminfo.tickerid, res3, upmid, barmerge.gaps_off, barmerge.lookahead_on)
-res3up35 = security(syminfo.tickerid, res3, up35, barmerge.gaps_off, barmerge.lookahead_on)
+res3up = f_security(syminfo.tickerid, res3, up, false)
+res3uphigh = f_security(syminfo.tickerid, res3, uphigh, false)
+res3up65 = f_security(syminfo.tickerid, res3, up65, false)
+res3upmid = f_security(syminfo.tickerid, res3, upmid, false)
+res3up35 = f_security(syminfo.tickerid, res3, up35, false)
 
-res3down = security(syminfo.tickerid, res3, down, barmerge.gaps_off, barmerge.lookahead_on)
-res3downlow = security(syminfo.tickerid, res3, downlow, barmerge.gaps_off, barmerge.lookahead_on)
-res3down65 = security(syminfo.tickerid, res3, down65, barmerge.gaps_off, barmerge.lookahead_on)
-res3downmid = security(syminfo.tickerid, res3, downmid, barmerge.gaps_off, barmerge.lookahead_on)
-res3down35 = security(syminfo.tickerid, res3, down35, barmerge.gaps_off, barmerge.lookahead_on)
+res3down = f_security(syminfo.tickerid, res3, down, false)
+res3downlow = f_security(syminfo.tickerid, res3, downlow, false)
+res3down65 = f_security(syminfo.tickerid, res3, down65, false)
+res3downmid = f_security(syminfo.tickerid, res3, downmid, false)
+res3down35 = f_security(syminfo.tickerid, res3, down35, false)
 //res4 MTF data
-res4up = security(syminfo.tickerid, res4, up, barmerge.gaps_off, barmerge.lookahead_on)
-res4uphigh = security(syminfo.tickerid, res4, uphigh, barmerge.gaps_off, barmerge.lookahead_on)
-res4up65 = security(syminfo.tickerid, res4, up65, barmerge.gaps_off, barmerge.lookahead_on)
-res4upmid = security(syminfo.tickerid, res4, upmid, barmerge.gaps_off, barmerge.lookahead_on)
-res4up35 = security(syminfo.tickerid, res4, up35, barmerge.gaps_off, barmerge.lookahead_on)
+res4up = f_security(syminfo.tickerid, res4, up, false)
+res4uphigh = f_security(syminfo.tickerid, res4, uphigh, false)
+res4up65 = f_security(syminfo.tickerid, res4, up65, false)
+res4upmid = f_security(syminfo.tickerid, res4, upmid, false)
+res4up35 = f_security(syminfo.tickerid, res4, up35, false)
 
-res4down = security(syminfo.tickerid, res4, down, barmerge.gaps_off, barmerge.lookahead_on)
-res4downlow = security(syminfo.tickerid, res4, downlow, barmerge.gaps_off, barmerge.lookahead_on)
-res4down65 = security(syminfo.tickerid, res4, down65, barmerge.gaps_off, barmerge.lookahead_on)
-res4downmid = security(syminfo.tickerid, res4, downmid, barmerge.gaps_off, barmerge.lookahead_on)
-res4down35 = security(syminfo.tickerid, res4, down35, barmerge.gaps_off, barmerge.lookahead_on)
+res4down = f_security(syminfo.tickerid, res4, down, false)
+res4downlow = f_security(syminfo.tickerid, res4, downlow, false)
+res4down65 = f_security(syminfo.tickerid, res4, down65, false)
+res4downmid = f_security(syminfo.tickerid, res4, downmid, false)
+res4down35 = f_security(syminfo.tickerid, res4, down35, false)
 
 
 //SMA functions
@@ -86,134 +85,246 @@ downSmahigh = Sma(high, (barssince(down)+(n+1)))
 downSmamid = Sma(downmid, (barssince(down)+(n+1)))
 downSmalow = Sma(low, (barssince(down)+(n+1)))
 
-res1upSmahigh= security(syminfo.tickerid, res1, upSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
-res1upSmamid= security(syminfo.tickerid, res1, upSmamid, barmerge.gaps_off, barmerge.lookahead_on)
-res1upSmalow= security(syminfo.tickerid, res1, upSmalow, barmerge.gaps_off, barmerge.lookahead_on)
-res1downSmahigh= security(syminfo.tickerid, res1, downSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
-res1downSmamid= security(syminfo.tickerid, res1, downSmamid, barmerge.gaps_off, barmerge.lookahead_on)
-res1downSmalow= security(syminfo.tickerid, res1, downSmalow, barmerge.gaps_off, barmerge.lookahead_on)
+MTFupSmahigh= f_security(syminfo.tickerid, res1, upSmahigh, false)
+MTFupSmamid= f_security(syminfo.tickerid, res1, upSmamid, false)
+MTFupSmalow= f_security(syminfo.tickerid, res1, upSmalow, false)
+MTFdownSmahigh= f_security(syminfo.tickerid, res1, downSmahigh, false)
+MTFdownSmamid= f_security(syminfo.tickerid, res1, downSmamid, false)
+MTFdownSmalow= f_security(syminfo.tickerid, res1, downSmalow, false)
 
-res2upSmahigh= security(syminfo.tickerid, res2, upSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
-res2upSmamid= security(syminfo.tickerid, res2, upSmamid, barmerge.gaps_off, barmerge.lookahead_on)
-res2upSmalow= security(syminfo.tickerid, res2, upSmalow, barmerge.gaps_off, barmerge.lookahead_on)
-res2downSmahigh= security(syminfo.tickerid, res2, downSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
-res2downSmamid= security(syminfo.tickerid, res2, downSmamid, barmerge.gaps_off, barmerge.lookahead_on)
-res2downSmalow= security(syminfo.tickerid, res2, downSmalow, barmerge.gaps_off, barmerge.lookahead_on)
+res2upSmahigh= f_security(syminfo.tickerid, res2, upSmahigh, false)
+res2upSmamid= f_security(syminfo.tickerid, res2, upSmamid, false)
+res2upSmalow= f_security(syminfo.tickerid, res2, upSmalow, false)
+res2downSmahigh= f_security(syminfo.tickerid, res2, downSmahigh, false)
+res2downSmamid= f_security(syminfo.tickerid, res2, downSmamid, false)
+res2downSmalow= f_security(syminfo.tickerid, res2, downSmalow, false)
 
-res3upSmahigh= security(syminfo.tickerid, res3, upSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
-res3upSmamid= security(syminfo.tickerid, res3, upSmamid, barmerge.gaps_off, barmerge.lookahead_on)
-res3upSmalow= security(syminfo.tickerid, res3, upSmalow, barmerge.gaps_off, barmerge.lookahead_on)
-res3downSmahigh= security(syminfo.tickerid, res3, downSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
-res3downSmamid= security(syminfo.tickerid, res3, downSmamid, barmerge.gaps_off, barmerge.lookahead_on)
-res3downSmalow= security(syminfo.tickerid, res3, downSmalow, barmerge.gaps_off, barmerge.lookahead_on)
+res3upSmahigh= f_security(syminfo.tickerid, res3, upSmahigh, false)
+res3upSmamid= f_security(syminfo.tickerid, res3, upSmamid, false)
+res3upSmalow= f_security(syminfo.tickerid, res3, upSmalow, false)
+res3downSmahigh= f_security(syminfo.tickerid, res3, downSmahigh, false)
+res3downSmamid= f_security(syminfo.tickerid, res3, downSmamid, false)
+res3downSmalow= f_security(syminfo.tickerid, res3, downSmalow, false)
 
-res4upSmahigh= security(syminfo.tickerid, res4, upSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
-res4upSmamid= security(syminfo.tickerid, res4, upSmamid, barmerge.gaps_off, barmerge.lookahead_on)
-res4upSmalow= security(syminfo.tickerid, res4, upSmalow, barmerge.gaps_off, barmerge.lookahead_on)
-res4downSmahigh= security(syminfo.tickerid, res4, downSmahigh, barmerge.gaps_off, barmerge.lookahead_on)
-res4downSmamid= security(syminfo.tickerid, res4, downSmamid, barmerge.gaps_off, barmerge.lookahead_on)
-res4downSmalow= security(syminfo.tickerid, res4, downSmalow, barmerge.gaps_off, barmerge.lookahead_on)
-
-
-
+res4upSmahigh= f_security(syminfo.tickerid, res4, upSmahigh, false)
+res4upSmamid= f_security(syminfo.tickerid, res4, upSmamid, false)
+res4upSmalow= f_security(syminfo.tickerid, res4, upSmalow, false)
+res4downSmahigh= f_security(syminfo.tickerid, res4, downSmahigh, false)
+res4downSmamid= f_security(syminfo.tickerid, res4, downSmamid, false)
+res4downSmalow= f_security(syminfo.tickerid, res4, downSmalow, false)
 
 
 //Bands/Cloud calculations
-midbandres1 = (res1upSmahigh+res1downSmalow)*0.5
+midbandres1 = (MTFupSmahigh+MTFdownSmalow)*0.5
 midbandres2 = (res2upSmahigh+res2downSmalow)*0.5
 midbandres3 = (res3upSmahigh+res3downSmalow)*0.5
 midbandres4 = (res4upSmahigh+res4downSmalow)*0.5
 
-midavgres1 = (res1upmid+res1downmid)*0.5
-midavgres2 = (res2upmid+res2downmid)*0.5
-midavgres3 = (res3upmid+res3downmid)*0.5
-midavgres4 = (res4upmid+res4downmid)*0.5
+//Trend Shift switch res 1
+condATrigger1 = rising(midbandres1, 1)
+condBTrigger1 = falling(midbandres1, 1)
+condA1 = false
+condB1 = false
+var LastCondWasA1 = false
+if condATrigger1 and not LastCondWasA1
+    condA1 := true
+    LastCondWasA1 := true
+else
+    if condBTrigger1 and LastCondWasA1
+        condB1 := true
+        LastCondWasA1 := false
 
+//Trend Shift switch res 2
+condATrigger2 = rising(midbandres2, 1)
+condBTrigger2 = falling(midbandres2, 1)
+condA2 = false
+condB2 = false
+var LastCondWasA2 = false
+if condATrigger2 and not LastCondWasA2
+    condA2 := true
+    LastCondWasA2 := true
+else
+    if condBTrigger2 and LastCondWasA2
+        condB2 := true
+        LastCondWasA2 := false
 
-// Step Deviations
-deviation(src1, src2) => ( (src1 - src2) / ( ( src1 + src2 ) / 2 ) ) * 100
-dev1=deviation(close, midbandres1)
-dev2=deviation(close, midbandres2)
-dev3=deviation(close, midbandres3)
-dev4=deviation(close, midbandres4)
-middev1=deviation(close, midavgres1)
-middev2=deviation(close, midavgres2)
-middev3=deviation(close, midavgres3)
-middev4=deviation(close, midavgres4)
-
-devlines = deviation(avg(midbandres1, midbandres2), avg(midbandres3, midbandres4))
-midavgdev= avg(middev1, middev2, middev3, middev4)
-avgdev1_2= avg(dev1, dev2)
-avgdev3_4= avg(dev3, dev4)
-diffflipped= (avgdev3_4-avgdev1_2)/2
-avgdev = avg(dev1, dev2, dev3, dev4)
-
-//HMA
-hmalength = input(9, minval=1)
-
-hmatf = input(title="HMA source", defval="TF 1/2", options=["TF 1/2", "TF 3/4"])
-hmasrc = hmatf=="TF 1/2"? avgdev1_2: hmatf=="TF 3/4"? avgdev3_4:na
-hullma = wma(2*wma(hmasrc, hmalength/2)-wma(hmasrc, hmalength), round(sqrt(hmalength)))
-
-plotres1 =input(false, "TF1 and TF2 Step Deviation")
-plotres4 =input(true, "TF3 and TF4 Step Deviation")
-plothma = input(true, "Deviation HMA")
-plothmaa = plot(plothma?hullma:na, linewidth=1, color=hullma>0?color.green:color.red, style = plot.style_line, transp=10)
-plot(plotres1?avgdev1_2:na, linewidth=1, color=color.blue, style = plot.style_line, transp=20)
-plot(plotres4?avgdev3_4:na, linewidth=2, color=color.black, style = plot.style_line, transp=10)
-plot(diffflipped, linewidth=1, color=diffflipped>0?#114A45:#28173F, style = plot.style_area, transp=70)
-
-//=====================================================================================================
-//Deviations (Bands)
-updev1=deviation(close, res1upSmahigh)
-updev2=deviation(close, res2upSmahigh)
-updev3=deviation(close, res2upSmahigh)
-updev4=deviation(close, res2upSmahigh)
-downdev1=deviation(close, res1downSmalow)
-downdev2=deviation(close, res2downSmalow)
-downdev3=deviation(close, res3downSmalow)
-downdev4=deviation(close, res4downSmalow)
-
-
-upavgdev1_2= avg(updev1, updev2)
-upavgdev3_4= avg(updev3, updev4)
-downavgdev1_2= avg(downdev1, downdev2)
-downavgdev3_4= avg(downdev3, downdev4)
-upavgdev = avg(updev1, updev2, updev3, updev4)
-
-updnavgdev1_2 = (upavgdev1_2 + downavgdev1_2)/2
-updnavgdev3_4 = (upavgdev3_4 + downavgdev3_4)/2
-
-downavgdev = avg(downdev1, downdev2, downdev3, downdev4)
-updnavgdev = (upavgdev+downavgdev)/2
-//=====================================================================================================
-plotres12 =input(false, "TF1 and TF2 Band Deviations")
-plotres34 =input(false, "TF3 and TF4 Band Deviations")
-
-extremedev1_2 = (upavgdev1_2>0 and downavgdev1_2>0) or (upavgdev1_2<0 and downavgdev1_2<0)
-extremedev3_4 = (upavgdev3_4>0 and downavgdev3_4>0) or (upavgdev3_4<0 and downavgdev3_4<0)
-
-
-plot(plotres12?upavgdev1_2:na, linewidth=1, color=color.blue, style = plot.style_line, transp=20)
-plot(plotres34?upavgdev3_4:na, linewidth=1, color=color.black, style = plot.style_line, transp=10)
-plot(plotres12?downavgdev1_2:na, linewidth=1, color=color.blue, style = plot.style_line, transp=20)
-plot(plotres34?downavgdev3_4:na, linewidth=1, color=color.black, style = plot.style_line, transp=10)
-plot(0, color=color.black)
-
-plot1_2hist = input(true, title="TF 1 and 2 Histogram")
-plot3_4hist = input(true, title="TF 3 and 4 Histogram")
-
-devplot1_2 = plot(extremedev1_2?updnavgdev1_2:na, color=updnavgdev1_2>0?color.green:color.maroon, style = plot.style_columns, transp=40, linewidth=3)
-devplot3_4 = plot(extremedev3_4?updnavgdev3_4:na, color=updnavgdev3_4>0?#114A45:#28173F, style = plot.style_columns, transp=40, linewidth=3)
+//Trend Shift switch res 3
+condATrigger3 = rising(midbandres3, 1)
+condBTrigger3 = falling(midbandres3, 1)
+condA3 = false
+condB3 = false
+var LastCondWasA3 = false
+if condATrigger3 and not LastCondWasA3
+    condA3 := true
+    LastCondWasA3 := true
+else
+    if condBTrigger3 and LastCondWasA3
+        condB3 := true
+        LastCondWasA3 := false
+        
+//Trend Shift switch res 4
+condATrigger4 = rising(midbandres4, 1)
+condBTrigger4 = falling(midbandres4, 1)
+condA4 = false
+condB4 = false
+var LastCondWasA4 = false
+if condATrigger4 and not LastCondWasA4
+    condA4 := true
+    LastCondWasA4 := true
+else
+    if condBTrigger4 and LastCondWasA4
+        condB4 := true
+        LastCondWasA4 := false
 
 
 
-//Alerts
-cross1_2 = cross(updnavgdev, 0)
-cross3_4 = cross(updnavgdev, 0)
-extremedevalert = extremedev3_4[1] and not extremedev3_4
+//==============================
+bullres1 = LastCondWasA1
+bullres2 = LastCondWasA2
+bullres3 = LastCondWasA3
+bullres4 = LastCondWasA4
 
-alertcondition(cross1_2, title="TF LTF cross 0 (median line)", message="Deviations Low TF has crossed the median - {{ticker}}")
-alertcondition(cross3_4, title="TF HTF cross 0 (median line)", message="Deviations High TF has crossed the median - {{ticker}}")
-alertcondition(extremedevalert, title="Extreme deviation ending TF 3 and 4", message="Extreme deviattion complete, confirmed re-entry of bands. Price momentum may be slowing - possible trend change or correction = {{ticker}}")
+bearres1 = not LastCondWasA1
+bearres2 = not LastCondWasA2
+bearres3 = not LastCondWasA3
+bearres4 = not LastCondWasA4
+
+////////////=============
+
+cut_lines(series) =>
+    change(series) != 0 ? na : series
+
+highest_(values, length) =>
+	h_val = values[0]
+	h_indx = 0
+	if length >= 1
+		for i = 0 to length-1
+			if ( not na(values[i]) and values[i] > h_val  )
+				h_indx := i
+				h_val := values[i]
+	h_val
+
+
+lowest_(values, length) =>
+	l_val = values[0]
+	l_indx = 0
+	if length >= 1
+		for i = 0 to length-1
+			if ( not na(values[i]) and values[i] < l_val )
+				l_indx := i
+				l_val := values[i]
+	l_val
+
+//============================wizhighs
+
+wizhigh1 = highest_(high, barssince(condATrigger1 or condBTrigger1))
+wizdisthigh1 = wizhigh1 - midbandres1
+wizfibhigh1 = (midbandres1-wizdisthigh1)
+wizfibhigh1_875 = midbandres1-wizdisthigh1*0.875
+
+wizhigh2 = highest_(high, barssince(condATrigger2 or condBTrigger2))
+wizdisthigh2 = wizhigh2 - midbandres2
+wizfibhigh2 = (midbandres2-wizdisthigh2)
+wizfibhigh2_875 = midbandres2-wizdisthigh2*0.875
+
+wizhigh3 = highest_(high, barssince(condATrigger3 or condBTrigger3))
+wizdisthigh3 = wizhigh3 - midbandres3
+wizfibhigh3 = (midbandres3-wizdisthigh3)
+wizfibhigh3_875 = midbandres3-wizdisthigh3*0.875
+
+wizhigh4 = highest_(high, barssince(condATrigger4 or condBTrigger4))
+wizdisthigh4 = wizhigh4 - midbandres4
+wizfibhigh4 = (midbandres4-wizdisthigh4)
+wizfibhigh4_875 = midbandres4-wizdisthigh4*0.875
+//=======================wizlows
+
+
+wizlow1 = lowest_(low, barssince(condATrigger1 or condBTrigger1))
+wizdistlow1 = midbandres1 - wizlow1
+wizfiblow1 = (wizdistlow1+midbandres1)
+wizfiblow1_875 = wizdistlow1*0.875+midbandres1
+
+wizlow2 = lowest_(low, barssince(condATrigger2 or condBTrigger2))
+wizdistlow2 = midbandres2 - wizlow2
+wizfiblow2 = (wizdistlow2+midbandres2)
+wizfiblow2_875 = wizdistlow2*0.875+midbandres2
+
+wizlow3 = lowest_(low, barssince(condATrigger3 or condBTrigger3))
+wizdistlow3 = midbandres3 - wizlow3
+wizfiblow3 = (wizdistlow3+midbandres3)
+wizfiblow3_875 = wizdistlow3*0.875+midbandres3
+
+wizlow4 = lowest_(low, barssince(condATrigger4 or condBTrigger4))
+wizdistlow4 = midbandres4 - wizlow4
+wizfiblow4 = (wizdistlow4+midbandres4)
+wizfiblow4_875 = wizdistlow4*0.875+midbandres4
+
+
+//===================wiz band plot
+plotwiz1 = input(false, title = "Wiz Band TF 1")
+plotwiz2 = input(false, title = "Wiz Band TF 2")
+plotwiz3 = input(false, title = "Wiz Band TF 3")
+plotwiz4 = input(false, title = "Wiz Band TF 4")
+
+
+wiz1plot = plot(plotwiz1 and wizhigh1>midbandres1 and wizdisthigh1>0?wizfibhigh1:plotwiz1?wizfiblow1:na, color=color.aqua)
+wiz1_875plot = plot(plotwiz1 and wizhigh1>midbandres1 and wizdisthigh1>0?wizfibhigh1_875:plotwiz1?wizfiblow1_875:na, color=color.aqua)
+
+wiz2plot = plot(plotwiz2 and wizhigh2>midbandres2 and wizdisthigh2>0?wizfibhigh2:plotwiz2?wizfiblow2:na, color=color.blue)
+wiz2_875plot = plot(plotwiz2 and wizhigh2>midbandres2 and wizdisthigh2>0?wizfibhigh2_875:plotwiz2?wizfiblow2_875:na, color=color.blue)
+
+wiz3plot = plot(plotwiz3 and wizhigh3>midbandres3 and wizdisthigh3>0?wizfibhigh3:plotwiz3?wizfiblow3:na, color=color.navy)
+wiz3_875plot = plot(plotwiz3 and wizhigh3>midbandres3 and wizdisthigh3>0?wizfibhigh3_875:plotwiz3?wizfiblow3_875:na, color=color.navy)
+
+wiz4plot = plot(plotwiz4 and wizhigh4>midbandres4 and wizdisthigh4>0?wizfibhigh4:plotwiz4?wizfiblow4:na, color=color.black)
+wiz4_875plot = plot(plotwiz4 and wizhigh4>midbandres4 and wizdisthigh4>0?wizfibhigh4_875:plotwiz4?wizfiblow4_875:na, color=color.black)
+
+fill(wiz1plot, wiz1_875plot, color=color.aqua)
+fill(wiz2plot, wiz2_875plot, color=color.blue)
+fill(wiz3plot, wiz3_875plot, color=color.navy)
+fill(wiz4plot, wiz4_875plot, color=color.black)
+
+//====================Trend step plot
+plotres1 = input(false, title="Trend step Timeframe 1")
+plotres2 = input(false, title="Trend step Timeframe 2")
+plotres3 = input(false, title="Trend step Timeframe 3")
+plotres4 = input(false, title="Trend step Timeframe 4")
+//Marker plots and MTF trend lines
+res1trend = plot(plotres1?midbandres1:na, color=color.aqua, title="TF 1", linewidth=2)
+res2trend = plot(plotres2?midbandres2:na, color=color.blue, title="TF 2", linewidth=2)
+res3trend = plot(plotres3?midbandres3:na, color=color.navy, title="TF 3", linewidth=2)
+res4trend = plot(plotres4?midbandres4:na, color=color.black, title="TF 4", linewidth=2)
+
+textcandles = input(10, title="Label alignment (in number of candles)")
+time_=time-time[1]
+yloc_1=bullres1?location.abovebar:location.belowbar
+if barstate.islast and plotres1
+    labelres1= label.new(time+textcandles*time_, midbandres1, text=res1, style=label.style_none, xloc=xloc.bar_time)
+    label.set_textcolor(labelres1, bullres1?color.green:color.red)
+    label.delete(labelres1[1])
+if barstate.islast and plotres2
+    labelres2= label.new(time+textcandles*time_, midbandres2, text=res2, style=label.style_none, xloc=xloc.bar_time)
+    label.set_textcolor(labelres2, bullres2?color.green:color.red)
+    label.delete(labelres2[1])
+if barstate.islast and plotres3
+    labelres3= label.new(time+textcandles*time_, midbandres3, text=res3, style=label.style_none, xloc=xloc.bar_time)
+    label.set_textcolor(labelres3, bullres3?color.green:color.red)
+    label.delete(labelres3[1])
+if barstate.islast and plotres4
+    labelres4= label.new(time+textcandles*time_, midbandres4, text=res4, style=label.style_none, xloc=xloc.bar_time)
+    label.set_textcolor(labelres4, bullres4?color.green:color.red)
+    label.delete(labelres4[1])
+//==============================================ALERTS=======================================================
+
+bearreject(level) => open<level and high>level and close<level
+bullreject(level) => open>level and low<level and close>level
+mbblrej = bullreject(midbandres1)
+mbbrrej = bearreject(midbandres1)
+trendchangebull1 = (bullres1 and not bullres1[1])
+trendchangebear1 = (bearres1 and not bearres1[1])
+alertcondition(trendchangebull1, title="Bullish trend step change (TF1 only)", message="Bullish trend step change, {{ticker}} - {{interval}}")
+alertcondition(trendchangebear1, title="Bearish trend step change(TF1 only)", message="Bearish trend step change, {{ticker}} - {{interval}}")
+
+alertcondition(mbblrej, title="Bullish Rejection Trend Step TF1", message="Bullish Rejection Trend Step, {{ticker}} - {{interval}}")
+alertcondition(mbbrrej, title= 'Bearish Rejection Trend Step TF1', message="Bearish Rejection Trend Step, {{ticker}} - {{interval}}")
 
